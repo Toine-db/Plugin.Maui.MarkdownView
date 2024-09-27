@@ -5,12 +5,6 @@ VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plugin.Maui.MarkdownView", "Plugin.Maui.MarkdownView\Plugin.Maui.MarkdownView.csproj", "{2012F564-B8C7-4CEB-8495-1BCB1B0EB638}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution items", "{29589DA1-AD21-4E1C-ABBA-A8AF64D7C4D6}"
-	ProjectSection(SolutionItems) = preProject
-		..\nuget.png = ..\nuget.png
-		..\README.md = ..\README.md
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plugin.Maui.MarkdownView.Test", "Plugin.Maui.MarkdownView.Test\Plugin.Maui.MarkdownView.Test.csproj", "{A1619395-F945-4223-A3A9-ECE7552E8379}"
 EndProject
 Global
