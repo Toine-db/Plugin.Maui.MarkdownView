@@ -1,3 +1,5 @@
+using MarkdownParser;
+
 namespace Plugin.Maui.MarkdownView;
 
 [ContentProperty(nameof(MarkdownText))]
