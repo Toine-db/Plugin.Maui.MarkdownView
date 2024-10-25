@@ -1,4 +1,6 @@
-﻿namespace Plugin.Maui.MarkdownView;
+﻿using MarkdownParser;
+
+namespace Plugin.Maui.MarkdownView;
 
 public class MauiViewSupplier : IViewSupplier<View>
 {
