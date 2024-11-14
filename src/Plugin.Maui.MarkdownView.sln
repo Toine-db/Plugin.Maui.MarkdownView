@@ -7,6 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plugin.Maui.MarkdownView", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plugin.Maui.MarkdownView.Test", "Plugin.Maui.MarkdownView.Test\Plugin.Maui.MarkdownView.Test.csproj", "{A1619395-F945-4223-A3A9-ECE7552E8379}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{9369E148-E387-40A6-97DD-E946A962F761}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\ci-sample.yml = ..\.github\workflows\ci-sample.yml
+		..\.github\workflows\ci.yml = ..\.github\workflows\ci.yml
+		..\.github\workflows\release-nuget.yml = ..\.github\workflows\release-nuget.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
