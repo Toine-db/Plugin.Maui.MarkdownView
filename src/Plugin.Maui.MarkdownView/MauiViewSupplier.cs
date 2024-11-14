@@ -1,9 +1,30 @@
 ﻿using MarkdownParser;
+using MarkdownParser.Models;
 
 namespace Plugin.Maui.MarkdownView;
 
 public class MauiViewSupplier : IViewSupplier<View>
 {
+    public IEnumerable<MarkdownReferenceDefinition>? MarkdownReferenceDefinitions { get; private set; }
+
+    public void RegisterReferenceDefinitions(IEnumerable<MarkdownReferenceDefinition> markdownReferenceDefinitions)
+    {
+        MarkdownReferenceDefinitions = markdownReferenceDefinitions;
+    }
+
+    public View GetTextView(TextBlock textBlock)
+    {
+        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var textview = new Label()
+        {
+            LineBreakMode = LineBreakMode.WordWrap,
+            FontSize = 20,
+            Text = content
+        };
+
+        return textview;
+    }
+
     public View GetBlockquotesView(View childView)
     {
         var boxview = new BoxView()
@@ -16,8 +37,9 @@ public class MauiViewSupplier : IViewSupplier<View>
         return boxview;
     }
 
-    public View GetHeaderView(string content, int headerLevel)
+    public View GetHeaderView(TextBlock textBlock, int headerLevel)
     {
+        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
         var header = new Label()
         {
             LineBreakMode = LineBreakMode.WordWrap,
@@ -81,6 +103,54 @@ public class MauiViewSupplier : IViewSupplier<View>
         };
     }
 
+    public View GetFencedCodeBlock(TextBlock textBlock, string codeInfo)
+    {
+        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var label = new Label()
+        {
+            LineBreakMode = LineBreakMode.WordWrap,
+            FontSize = 20,
+            Text = content,
+            Padding = new Thickness(10),
+            Margin = new Thickness(10,0,0,0),
+            BackgroundColor = Colors.LightGray
+        };
+
+        return label;
+    }
+
+    public View GetIndentedCodeBlock(TextBlock textBlock)
+    {
+        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var label = new Label()
+        {
+            LineBreakMode = LineBreakMode.WordWrap,
+            FontSize = 20,
+            Text = content,
+            Padding = new Thickness(10),
+            Margin = new Thickness(10, 0, 0, 0),
+            BackgroundColor = Colors.LightGray
+        };
+
+        return label;
+    }
+
+    public View GetHtmlBlock(TextBlock textBlock)
+    {
+        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var label = new Label()
+        {
+            LineBreakMode = LineBreakMode.WordWrap,
+            FontSize = 20,
+            Text = content,
+            Padding = new Thickness(10),
+            Margin = new Thickness(0, 0, 0, 0),
+            BackgroundColor = Colors.LightBlue
+        };
+
+        return label;
+    }
+
     public View GetStackLayoutView(List<View> childViews)
     {
         var stacklayout = new VerticalStackLayout();
@@ -90,18 +160,6 @@ public class MauiViewSupplier : IViewSupplier<View>
         }
 
         return stacklayout;
-    }
-
-    public View GetTextView(string content)
-    {
-        var textview = new Label()
-        {
-            LineBreakMode = LineBreakMode.WordWrap,
-            FontSize = 20,
-            Text = content
-        };
-
-        return textview;
     }
 
     public View GetThematicBreak()
