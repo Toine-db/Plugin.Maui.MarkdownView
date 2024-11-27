@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Plugin.Maui.MarkdownView;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Plugin.Maui.MarkdownView.Sample;
 
@@ -17,7 +16,11 @@ public static class MauiProgram
 			});
 
 		builder.Services.AddTransient<MainPage>();
-		//builder.Services.AddSingleton<IFeature>(Feature.Default);
+
+		builder.Services.AddLogging(logging =>
+		{
+			logging.AddDebug();
+		});
 
 		return builder.Build();
 	}

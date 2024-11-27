@@ -1,10 +1,12 @@
 using MarkdownParser;
+using Microsoft.Extensions.Logging;
 
 namespace Plugin.Maui.MarkdownView;
 
 [ContentProperty(nameof(MarkdownText))]
 public class MarkdownView : ContentView
 {
+    private readonly ILogger<MarkdownView>? _logger;
     private readonly VerticalStackLayout _layout;
     private static readonly Semaphore LoadingSemaphore = new Semaphore(1, 1);
     private CancellationTokenSource? _loadingCts;
@@ -13,6 +15,8 @@ public class MarkdownView : ContentView
     {
         _layout = new VerticalStackLayout();
 		Content = _layout;
+
+        _logger ??= Handler?.MauiContext?.Services.GetService<ILogger<MarkdownView>>();
     }
 
     /// <summary>
@@ -100,16 +104,6 @@ public class MarkdownView : ContentView
             return;
         }
 
-        // markdownText = markdownText.Replace(@"\r", string.Empty);
-
-        //
-        //todo: test ...ReplaceLineEndings 
-        // todo: test what happens in Xamarin....how much Views are created
-        // todo: xml:space='Preserve' werkt niet tijdens build, daarna wel
-        // markdownText = markdownText.Replace(@"\\n", @"y");
-
-        //markdownText = Regex.Replace(markdownText, @"\r\n?|\n", "\r\n");
-
         IsLoadingMarkdown = true;
 
         var uiComponentSupplier = new MauiViewSupplier();
@@ -127,10 +121,8 @@ public class MarkdownView : ContentView
                 _layout.Add(view);
             }
 
-            System.Diagnostics.Debug.WriteLine($"++++++++++++++++++ Markdown used: {markdownText}");
-
-            System.Diagnostics.Debug.WriteLine($"++++++++++++++++++ Views generated: {views.Count}");
-
+            _logger?.Log(LogLevel.Trace, "Markdown used > {markdownText}", markdownText);
+            _logger?.Log(LogLevel.Information, "{viewCount} top-level views generated", views.Count);
         });
 
         IsLoadingMarkdown = false;

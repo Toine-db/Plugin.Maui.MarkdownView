@@ -1,8 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:markdownView="clr-namespace:Plugin.Maui.MarkdownView;assembly=Plugin.Maui.MarkdownView"
              x:Class="Plugin.Maui.MarkdownView.Sample.MainPage"
              Title="Feature Plugin">
 
-    <!-- Add something that makes sense for your plugin here -->
+    <Grid>
+        <!-- xml:space > workaround to keep line-breaks and spacing during HotReload -->
+        <markdownView:MarkdownView xml:space="preserve"> 
+Test xxx testerx 
+xxxcxxx testtt
+ 
+
+x
+
+erttr
+
+- Number1 
+- Numer 2
+- Number 3
+            </markdownView:MarkdownView>
+    </Grid>
 </ContentPage>
