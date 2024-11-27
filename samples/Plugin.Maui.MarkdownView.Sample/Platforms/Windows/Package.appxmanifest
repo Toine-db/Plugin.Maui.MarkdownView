@@ -2,11 +2,13 @@
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  xmlns:iot="http://schemas.microsoft.com/appx/manifest/iot/windows10"
-  IgnorableNamespaces="uap rescap iot">
+  IgnorableNamespaces="uap rescap">
 
   <Identity Name="maui-package-name-placeholder" Publisher="CN=User Name" Version="0.0.0.0" />
+
+  <mp:PhoneIdentity PhoneProductId="D2F81A9D-6DA0-4C80-A9E4-F75DAB29BDCF" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>$placeholder$</DisplayName>
@@ -39,8 +41,6 @@
 
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
-    <iot:Capability Name="systemManagement"/>
   </Capabilities>
 
 </Package>
-

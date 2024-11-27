@@ -5,16 +5,16 @@ namespace Plugin.Maui.MarkdownView;
 
 public class MauiViewSupplier : IViewSupplier<View>
 {
-    public IEnumerable<MarkdownReferenceDefinition>? MarkdownReferenceDefinitions { get; private set; }
+    public IEnumerable<MarkdownReferenceDefinition>? PublishedMarkdownReferenceDefinitions { get; private set; }
 
-    public void RegisterReferenceDefinitions(IEnumerable<MarkdownReferenceDefinition> markdownReferenceDefinitions)
+    public void OnReferenceDefinitionsPublished(IEnumerable<MarkdownReferenceDefinition> markdownReferenceDefinitions)
     {
-        MarkdownReferenceDefinitions = markdownReferenceDefinitions;
+        PublishedMarkdownReferenceDefinitions = markdownReferenceDefinitions;
     }
 
-    public View GetTextView(TextBlock textBlock)
+    public virtual View CreateTextView(TextBlock textBlock)
     {
-        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var textview = new Label()
         {
             LineBreakMode = LineBreakMode.WordWrap,
@@ -25,21 +25,22 @@ public class MauiViewSupplier : IViewSupplier<View>
         return textview;
     }
 
-    public View GetBlockquotesView(View childView)
+    public virtual View CreateBlockquotesView(View childView)
     {
-        var boxview = new BoxView()
+        var blockView = new Grid()
         {
-            BackgroundColor = Colors.Gray
+            BackgroundColor = Colors.Gray,
+            Padding = new Thickness(10)
         };
 
-        boxview.AddLogicalChild(childView);
+        blockView.Add(childView);
 
-        return boxview;
+        return blockView;
     }
 
-    public View GetHeaderView(TextBlock textBlock, int headerLevel)
+    public virtual View CreateHeaderView(TextBlock textBlock, int headerLevel)
     {
-        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var header = new Label()
         {
             LineBreakMode = LineBreakMode.WordWrap,
@@ -50,22 +51,15 @@ public class MauiViewSupplier : IViewSupplier<View>
         return header;
     }
 
-    public View GetImageView(string url, string subscription, string imageId)
+    public virtual View CreateImageView(string url, string subscription, string imageId)
     {
-        //var imageView = new Image();
-        //imageView.Source = new Uri(url);
+        var imageView = new Image();
+        imageView.Source = ImageSource.FromFile(url);
 
-        //return imageView;
-
-        return new BoxView()
-        {
-            HeightRequest = 50,
-            BackgroundColor = Colors.Blue,
-            HorizontalOptions = LayoutOptions.Fill
-        };
+        return imageView;
     }
 
-    public View GetListItemView(View childView, bool isOrderedList, int sequenceNumber, int listLevel)
+    public virtual View CreateListItemView(View childView, bool isOrderedList, int sequenceNumber, int listLevel)
     {
         var stacklayout = new HorizontalStackLayout();
 
@@ -82,7 +76,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return stacklayout;
     }
 
-    public View GetListView(List<View> items)
+    public virtual View CreateListView(List<View> items)
     {
         var stacklayout = new VerticalStackLayout();
         foreach (var view in items)
@@ -93,7 +87,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return stacklayout;
     }
 
-    public View GetPlaceholder(string placeholderName)
+    public virtual View CreatePlaceholder(string placeholderName)
     {
         return new BoxView()
         {
@@ -103,9 +97,9 @@ public class MauiViewSupplier : IViewSupplier<View>
         };
     }
 
-    public View GetFencedCodeBlock(TextBlock textBlock, string codeInfo)
+    public virtual View CreateFencedCodeBlock(TextBlock textBlock, string codeInfo)
     {
-        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var label = new Label()
         {
             LineBreakMode = LineBreakMode.WordWrap,
@@ -113,15 +107,15 @@ public class MauiViewSupplier : IViewSupplier<View>
             Text = content,
             Padding = new Thickness(10),
             Margin = new Thickness(10,0,0,0),
-            BackgroundColor = Colors.LightGray
+            BackgroundColor = Colors.LightGreen
         };
 
         return label;
     }
 
-    public View GetIndentedCodeBlock(TextBlock textBlock)
+    public virtual View CreateIndentedCodeBlock(TextBlock textBlock)
     {
-        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var label = new Label()
         {
             LineBreakMode = LineBreakMode.WordWrap,
@@ -129,15 +123,15 @@ public class MauiViewSupplier : IViewSupplier<View>
             Text = content,
             Padding = new Thickness(10),
             Margin = new Thickness(10, 0, 0, 0),
-            BackgroundColor = Colors.LightGray
+            BackgroundColor = Colors.LightPink
         };
 
         return label;
     }
 
-    public View GetHtmlBlock(TextBlock textBlock)
+    public virtual View CreateHtmlBlock(TextBlock textBlock)
     {
-        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var label = new Label()
         {
             LineBreakMode = LineBreakMode.WordWrap,
@@ -151,7 +145,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return label;
     }
 
-    public View GetStackLayoutView(List<View> childViews)
+    public virtual View CreateStackLayoutView(List<View> childViews)
     {
         var stacklayout = new VerticalStackLayout();
         foreach (var view in childViews)
@@ -162,12 +156,12 @@ public class MauiViewSupplier : IViewSupplier<View>
         return stacklayout;
     }
 
-    public View GetThematicBreak()
+    public virtual View CreateThematicBreak()
     {
         return new BoxView()
         {
             HeightRequest = 2,
-            BackgroundColor = Colors.Black,
+            BackgroundColor = Colors.Purple,
             HorizontalOptions = LayoutOptions.Fill
         };
     }
