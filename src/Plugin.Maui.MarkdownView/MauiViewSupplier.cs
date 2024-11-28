@@ -52,17 +52,10 @@ public class MauiViewSupplier : IViewSupplier<View>
 
     public View CreateImageView(string url, string subscription, string imageId)
     {
-        //var imageView = new Image();
-        //imageView.Source = new Uri(url);
+        var imageView = new Image();
+        imageView.Source = ImageSource.FromFile(url);
 
-        //return imageView;
-
-        return new BoxView()
-        {
-            HeightRequest = 50,
-            BackgroundColor = Colors.Blue,
-            HorizontalOptions = LayoutOptions.Fill
-        };
+        return imageView;
     }
 
     public View CreateListItemView(View childView, bool isOrderedList, int sequenceNumber, int listLevel)
