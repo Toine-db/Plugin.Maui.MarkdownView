@@ -14,7 +14,7 @@ public class MauiViewSupplier : IViewSupplier<View>
 
     public virtual View CreateTextView(TextBlock textBlock)
     {
-        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var textview = new Label()
         {
             LineBreakMode = LineBreakMode.WordWrap,
@@ -27,19 +27,20 @@ public class MauiViewSupplier : IViewSupplier<View>
 
     public virtual View CreateBlockquotesView(View childView)
     {
-        var boxview = new BoxView()
+        var blockView = new Grid()
         {
-            BackgroundColor = Colors.Gray
+            BackgroundColor = Colors.Gray,
+            Padding = new Thickness(10)
         };
 
-        boxview.AddLogicalChild(childView);
+        blockView.Add(childView);
 
-        return boxview;
+        return blockView;
     }
 
     public virtual View CreateHeaderView(TextBlock textBlock, int headerLevel)
     {
-        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var header = new Label()
         {
             LineBreakMode = LineBreakMode.WordWrap,
@@ -98,7 +99,7 @@ public class MauiViewSupplier : IViewSupplier<View>
 
     public virtual View CreateFencedCodeBlock(TextBlock textBlock, string codeInfo)
     {
-        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var label = new Label()
         {
             LineBreakMode = LineBreakMode.WordWrap,
@@ -106,7 +107,7 @@ public class MauiViewSupplier : IViewSupplier<View>
             Text = content,
             Padding = new Thickness(10),
             Margin = new Thickness(10,0,0,0),
-            BackgroundColor = Colors.LightGray
+            BackgroundColor = Colors.LightGreen
         };
 
         return label;
@@ -114,7 +115,7 @@ public class MauiViewSupplier : IViewSupplier<View>
 
     public virtual View CreateIndentedCodeBlock(TextBlock textBlock)
     {
-        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var label = new Label()
         {
             LineBreakMode = LineBreakMode.WordWrap,
@@ -122,7 +123,7 @@ public class MauiViewSupplier : IViewSupplier<View>
             Text = content,
             Padding = new Thickness(10),
             Margin = new Thickness(10, 0, 0, 0),
-            BackgroundColor = Colors.LightGray
+            BackgroundColor = Colors.LightPink
         };
 
         return label;
@@ -130,7 +131,7 @@ public class MauiViewSupplier : IViewSupplier<View>
 
     public virtual View CreateHtmlBlock(TextBlock textBlock)
     {
-        var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
+        var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var label = new Label()
         {
             LineBreakMode = LineBreakMode.WordWrap,
@@ -160,7 +161,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return new BoxView()
         {
             HeightRequest = 2,
-            BackgroundColor = Colors.Black,
+            BackgroundColor = Colors.Purple,
             HorizontalOptions = LayoutOptions.Fill
         };
     }

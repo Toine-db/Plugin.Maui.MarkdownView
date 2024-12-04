@@ -8,7 +8,7 @@ public class MarkdownView : ContentView
 {
     private readonly ILogger<MarkdownView>? _logger;
     private readonly VerticalStackLayout _layout;
-    private static readonly Semaphore LoadingSemaphore = new Semaphore(1, 1);
+    private static readonly Semaphore LoadingSemaphore = new (1, 1);
     private CancellationTokenSource? _loadingCts;
 
     public MarkdownView()
@@ -47,7 +47,7 @@ public class MarkdownView : ContentView
         set => SetValue(IsLoadingMarkdownProperty, value);
     }
 
-    private static void MarkdownTextPropertyChanged(BindableObject bindable, object oldvalue, object newvalue)
+    private static void MarkdownTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
     {
         if (bindable is MarkdownView markdownView)
         {
