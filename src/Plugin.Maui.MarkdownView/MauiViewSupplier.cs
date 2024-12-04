@@ -5,14 +5,14 @@ namespace Plugin.Maui.MarkdownView;
 
 public class MauiViewSupplier : IViewSupplier<View>
 {
-    public IEnumerable<MarkdownReferenceDefinition>? MarkdownReferenceDefinitions { get; private set; }
+    public IEnumerable<MarkdownReferenceDefinition>? PublishedMarkdownReferenceDefinitions { get; private set; }
 
     public void OnReferenceDefinitionsPublished(IEnumerable<MarkdownReferenceDefinition> markdownReferenceDefinitions)
     {
-        MarkdownReferenceDefinitions = markdownReferenceDefinitions;
+        PublishedMarkdownReferenceDefinitions = markdownReferenceDefinitions;
     }
 
-    public View CreateTextView(TextBlock textBlock)
+    public virtual View CreateTextView(TextBlock textBlock)
     {
         var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
         var textview = new Label()
@@ -25,7 +25,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return textview;
     }
 
-    public View CreateBlockquotesView(View childView)
+    public virtual View CreateBlockquotesView(View childView)
     {
         var boxview = new BoxView()
         {
@@ -37,7 +37,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return boxview;
     }
 
-    public View CreateHeaderView(TextBlock textBlock, int headerLevel)
+    public virtual View CreateHeaderView(TextBlock textBlock, int headerLevel)
     {
         var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
         var header = new Label()
@@ -50,7 +50,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return header;
     }
 
-    public View CreateImageView(string url, string subscription, string imageId)
+    public virtual View CreateImageView(string url, string subscription, string imageId)
     {
         var imageView = new Image();
         imageView.Source = ImageSource.FromFile(url);
@@ -58,7 +58,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return imageView;
     }
 
-    public View CreateListItemView(View childView, bool isOrderedList, int sequenceNumber, int listLevel)
+    public virtual View CreateListItemView(View childView, bool isOrderedList, int sequenceNumber, int listLevel)
     {
         var stacklayout = new HorizontalStackLayout();
 
@@ -75,7 +75,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return stacklayout;
     }
 
-    public View CreateListView(List<View> items)
+    public virtual View CreateListView(List<View> items)
     {
         var stacklayout = new VerticalStackLayout();
         foreach (var view in items)
@@ -86,7 +86,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return stacklayout;
     }
 
-    public View CreatePlaceholder(string placeholderName)
+    public virtual View CreatePlaceholder(string placeholderName)
     {
         return new BoxView()
         {
@@ -96,7 +96,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         };
     }
 
-    public View CreateFencedCodeBlock(TextBlock textBlock, string codeInfo)
+    public virtual View CreateFencedCodeBlock(TextBlock textBlock, string codeInfo)
     {
         var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
         var label = new Label()
@@ -112,7 +112,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return label;
     }
 
-    public View CreateIndentedCodeBlock(TextBlock textBlock)
+    public virtual View CreateIndentedCodeBlock(TextBlock textBlock)
     {
         var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
         var label = new Label()
@@ -128,7 +128,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return label;
     }
 
-    public View CreateHtmlBlock(TextBlock textBlock)
+    public virtual View CreateHtmlBlock(TextBlock textBlock)
     {
         var content = textBlock.ExtractLiteralContent(Environment.CommandLine);
         var label = new Label()
@@ -144,7 +144,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return label;
     }
 
-    public View CreateStackLayoutView(List<View> childViews)
+    public virtual View CreateStackLayoutView(List<View> childViews)
     {
         var stacklayout = new VerticalStackLayout();
         foreach (var view in childViews)
@@ -155,7 +155,7 @@ public class MauiViewSupplier : IViewSupplier<View>
         return stacklayout;
     }
 
-    public View CreateThematicBreak()
+    public virtual View CreateThematicBreak()
     {
         return new BoxView()
         {
