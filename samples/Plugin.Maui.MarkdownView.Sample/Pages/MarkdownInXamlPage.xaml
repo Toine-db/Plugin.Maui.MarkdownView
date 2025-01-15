@@ -1,14 +1,17 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:markdownView="clr-namespace:Plugin.Maui.MarkdownView;assembly=Plugin.Maui.MarkdownView"
-             x:Class="Plugin.Maui.MarkdownView.Sample.MainPage">
+             x:Class="Plugin.Maui.MarkdownView.Sample.Pages.MarkdownInXamlPage"
+             Title="MarkdownInXamlPage">
 
     <ScrollView>
         <!-- xml:space > workaround to keep line-breaks and spacing during HotReload -->
         <markdownView:MarkdownView x:Name="MarkdownView" xml:space="preserve"> 
 An h1 header
 ============
+
+Markdown in XAML!
 
 Paragraphs are separated by a blank line.
 

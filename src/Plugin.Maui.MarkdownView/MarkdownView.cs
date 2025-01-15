@@ -22,7 +22,7 @@ public class MarkdownView : ContentView
     /// <summary>
     /// Workaround: space (lowercase) required for using xml:space="preserve" in XAML to keep linebreaks and spaces during HotReload
     /// </summary>
-    public static readonly BindableProperty SpaceProperty = BindableProperty.Create(nameof(MarkdownText), typeof(string), typeof(MarkdownView), "preserve");
+    public static readonly BindableProperty SpaceProperty = BindableProperty.Create(nameof(space), typeof(string), typeof(MarkdownView), "preserve");
     public string space
     {
         get => (string)GetValue(SpaceProperty);
@@ -47,9 +47,27 @@ public class MarkdownView : ContentView
         set => SetValue(IsLoadingMarkdownProperty, value);
     }
 
+    public static readonly BindableProperty ViewSupplierProperty =
+        BindableProperty.Create(nameof(ViewSupplier), typeof(IViewSupplier<View>), typeof(MarkdownView), null, propertyChanged: OnViewSupplierChanged);
+
+    public IViewSupplier<View>? ViewSupplier
+    {
+        get => (IViewSupplier<View>?)GetValue(ViewSupplierProperty);
+        set => SetValue(ViewSupplierProperty, value);
+    }
+
     private static void MarkdownTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
     {
         if (bindable is MarkdownView markdownView)
+        {
+            markdownView.InvalidateMarkdownAsync();
+        }
+    }
+
+    private static void OnViewSupplierChanged(BindableObject bindable, object oldvalue, object newvalue)
+    {
+        if (bindable is MarkdownView markdownView
+            && !string.IsNullOrWhiteSpace(markdownView.MarkdownText))
         {
             markdownView.InvalidateMarkdownAsync();
         }
@@ -106,7 +124,10 @@ public class MarkdownView : ContentView
 
         IsLoadingMarkdown = true;
 
-        var uiComponentSupplier = new MauiViewSupplier();
+        var uiComponentSupplier = ViewSupplier != null
+            ? ViewSupplier 
+            : new MauiViewSupplier();
+
         var markdownParser = new MarkdownParser<View>(uiComponentSupplier);
 
         await Dispatcher.DispatchAsync(() =>

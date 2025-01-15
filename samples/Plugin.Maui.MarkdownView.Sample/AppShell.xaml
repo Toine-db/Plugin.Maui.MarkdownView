@@ -3,13 +3,59 @@
     x:Class="Plugin.Maui.MarkdownView.Sample.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:Plugin.Maui.MarkdownView.Sample"
-    Shell.FlyoutBehavior="Disabled"
+    xmlns:pages="clr-namespace:Plugin.Maui.MarkdownView.Sample.Pages"
+    Shell.FlyoutBehavior="Flyout"
+    Shell.FlyoutBackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}"
     Title="Plugin.Maui.MarkdownView.Sample">
 
-    <ShellContent
-        Title="MarkdownView Plugin"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <Shell.Resources>
+
+        <Color x:Key="FlyoutHeaderColor">#FFFFFF</Color>
+        <Style TargetType="FontImageSource" >
+            <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"/>
+        </Style>
+
+    </Shell.Resources>
+
+    <Shell.FlyoutHeader>
+        <Grid HeightRequest="100" 
+              BackgroundColor="{StaticResource Primary}">
+            <Label Text="Markdown Viewer"
+                   VerticalOptions="Center"
+                   Style="{DynamicResource Headline}"
+                   TextColor="{DynamicResource FlyoutHeaderColor}" />
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <FlyoutItem Title="In XAML">
+        <FlyoutItem.FlyoutIcon>
+            <FontImageSource
+                FontFamily="FontAwesomeRegular"
+                Glyph="&#xf1c9;" />
+        </FlyoutItem.FlyoutIcon>
+        <Tab>
+            <ShellContent ContentTemplate="{DataTemplate pages:MarkdownInXamlPage}" />
+        </Tab>
+    </FlyoutItem>
+    <FlyoutItem Title="From File">
+        <FlyoutItem.FlyoutIcon>
+            <FontImageSource
+                FontFamily="FontAwesomeRegular"
+                Glyph="&#xf15b;" />
+        </FlyoutItem.FlyoutIcon>
+        <Tab>
+            <ShellContent ContentTemplate="{DataTemplate pages:MarkdownFromFilePage}" />
+        </Tab>
+    </FlyoutItem>
+    <FlyoutItem Title="From Remote">
+        <FlyoutItem.FlyoutIcon>
+            <FontImageSource
+                FontFamily="FontAwesomeSolid"
+                Glyph="&#xf0ed;" />
+        </FlyoutItem.FlyoutIcon>
+        <Tab>
+            <ShellContent ContentTemplate="{DataTemplate pages:MarkdownFromRemotePage}" />
+        </Tab>
+    </FlyoutItem>
 
 </Shell>
