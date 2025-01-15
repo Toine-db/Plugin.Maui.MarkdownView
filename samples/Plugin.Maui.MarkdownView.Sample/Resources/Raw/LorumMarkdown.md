@@ -1,13 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:markdownView="clr-namespace:Plugin.Maui.MarkdownView;assembly=Plugin.Maui.MarkdownView"
-             x:Class="Plugin.Maui.MarkdownView.Sample.MainPage">
-
-    <ScrollView>
-        <!-- xml:space > workaround to keep line-breaks and spacing during HotReload -->
-        <markdownView:MarkdownView x:Name="MarkdownView" xml:space="preserve"> 
-An h1 header
+﻿An h1 header
 ============
 
 Paragraphs are separated by a blank line.
@@ -31,6 +22,7 @@ content starts at 4-columns in.
 Use 3 dashes for an em-dash. Use 2 dashes for ranges (ex., "it's all
 in chapters 12--14"). Three dots ... will be converted to an ellipsis.
 Unicode is supported. ☺
+
 
 
 An h2 header
@@ -57,7 +49,7 @@ define foobar() {
 }
 ~~~
 
-(which makes copying and pasting easier). You can optionally mark the
+(which makes copying & pasting easier). You can optionally mark the
 delimited block for Pandoc to syntax highlight it:
 
 ~~~python
@@ -105,6 +97,31 @@ doc](#an-h2-header). Here's a footnote [^1].
 
 [^1]: Some footnote text.
 
+Tables can look like this:
+
+Name           Size  Material      Color
+------------- -----  ------------  ------------
+All Business      9  leather       brown
+Roundabout       10  hemp canvas   natural
+Cinderella       11  glass         transparent
+
+Table: Shoes sizes, materials, and colors.
+
+(The above is the caption for the table.) Pandoc also supports
+multi-line tables:
+
+--------  -----------------------
+Keyword   Text
+--------  -----------------------
+red       Sunsets, apples, and
+          other red or reddish
+          things.
+
+green     Leaves, grass, frogs
+          and other things it's
+          not easy being.
+--------  -----------------------
+
 A horizontal rule follows.
 
 ***
@@ -140,7 +157,3 @@ $$I = \int \rho R^{2} dV$$
 
 And note that you can backslash-escape any punctuation characters
 which you wish to be displayed literally, ex.: \`foo\`, \*bar\*, etc.
-            </markdownView:MarkdownView>
-    </ScrollView>
-
-</ContentPage>

@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0-ios</TargetFramework>
+
+		<OutputType>Exe</OutputType>
+		<RootNamespace>Plugin.Maui.MarkdownView.Sample.iOS</RootNamespace>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<!-- App Identifier -->
+		<ApplicationId>com.enbyin.markdownview.sample</ApplicationId>
+
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Plugin.Maui.MarkdownView.Sample\Plugin.Maui.MarkdownView.Sample.csproj" />
+	</ItemGroup>
+
+</Project>
