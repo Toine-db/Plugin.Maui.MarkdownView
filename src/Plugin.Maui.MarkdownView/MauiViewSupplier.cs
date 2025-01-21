@@ -5,6 +5,9 @@ namespace Plugin.Maui.MarkdownView;
 
 public class MauiViewSupplier : IViewSupplier<View>
 {
+    public string? BasePathForRelativeUrlConversion { get; set; }
+    public string[]? PrefixesToIgnoreForRelativeUrlConversion { get; set; }
+
     public IEnumerable<MarkdownReferenceDefinition>? PublishedMarkdownReferenceDefinitions { get; private set; }
 
     public void OnReferenceDefinitionsPublished(IEnumerable<MarkdownReferenceDefinition> markdownReferenceDefinitions)
@@ -53,12 +56,28 @@ public class MauiViewSupplier : IViewSupplier<View>
 
     public virtual View CreateImageView(string url, string subscription, string imageId)
     {
+        url = ConvertToAbsoluteUrlIfPossible(url);
+
         var imageView = new Image();
-        imageView.Source = ImageSource.FromFile(url);
+
+        if (HasHttp(url))
+        {
+            try
+            {
+                var uri = new Uri(url);
+                imageView.Source = ImageSource.FromUri(uri);
+            }
+            catch
+            {
+                // fallback on default ImageSource
+            }
+        }
+
+        imageView.Source ??= ImageSource.FromFile(url);
 
         return imageView;
     }
-
+    
     public virtual View CreateListItemView(View childView, bool isOrderedList, int sequenceNumber, int listLevel)
     {
         var stacklayout = new HorizontalStackLayout();
@@ -164,5 +183,41 @@ public class MauiViewSupplier : IViewSupplier<View>
             BackgroundColor = Colors.Purple,
             HorizontalOptions = LayoutOptions.Fill
         };
+    }
+
+    public virtual void Clear()
+    {
+        PublishedMarkdownReferenceDefinitions = [];
+    }
+
+    protected virtual string ConvertToAbsoluteUrlIfPossible(string url)
+    {
+        if (string.IsNullOrWhiteSpace(BasePathForRelativeUrlConversion)
+            || string.IsNullOrWhiteSpace(url))
+        {
+            return url;
+        }
+
+        if (PrefixesToIgnoreForRelativeUrlConversion == null
+            || PrefixesToIgnoreForRelativeUrlConversion.Any(prefix => url.StartsWith(prefix)))
+        {
+            return url;
+        }
+
+        var isAbsolute = Uri.TryCreate(url, UriKind.Absolute, out _);
+        if (isAbsolute)
+        {
+            return url;
+        }
+
+        var rootPath = BasePathForRelativeUrlConversion.TrimEnd('/').TrimEnd('\\');
+        var subPath = url.TrimStart('/').TrimStart('\\');
+        return $"{rootPath}/{subPath}";
+    }
+
+    protected static bool HasHttp(string path)
+    {
+        return path.StartsWith("http:")
+               || path.StartsWith("https:");
     }
 }
