@@ -37,16 +37,6 @@
             <ShellContent ContentTemplate="{DataTemplate pages:MarkdownInXamlPage}" />
         </Tab>
     </FlyoutItem>
-    <FlyoutItem Title="From File">
-        <FlyoutItem.FlyoutIcon>
-            <FontImageSource
-                FontFamily="FontAwesomeRegular"
-                Glyph="&#xf15b;" />
-        </FlyoutItem.FlyoutIcon>
-        <Tab>
-            <ShellContent ContentTemplate="{DataTemplate pages:MarkdownFromFilePage}" />
-        </Tab>
-    </FlyoutItem>
     <FlyoutItem Title="From Remote">
         <FlyoutItem.FlyoutIcon>
             <FontImageSource
