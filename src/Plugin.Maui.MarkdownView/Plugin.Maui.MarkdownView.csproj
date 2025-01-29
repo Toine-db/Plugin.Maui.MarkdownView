@@ -95,4 +95,16 @@
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
+	  <PackageReference Include="Xamarin.Google.Crypto.Tink.Android">
+	    <Version>1.15.0.1</Version>
+	  </PackageReference>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
+	  <PackageReference Include="Xamarin.Google.Crypto.Tink.Android">
+	    <Version>1.15.0.1</Version>
+	  </PackageReference>
+	</ItemGroup>
+
 </Project>

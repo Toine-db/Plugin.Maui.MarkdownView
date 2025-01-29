@@ -117,6 +117,11 @@ For customizability, against the principles of some developers, almost all metho
 ### Use UI Hot-Reload on multiple platforms simultaneously
 - TODO:
 
+## Side Notes
+- Italic and Bold/Strong do not work on iOS with most custom fonts like OpenSans. Reset the Font with `<Setter Property="FontFamily" Value="" />` will force to use the platform designated Font. So check if your font is supported on iOS for using italic and bold if you wan to use it.
+  - Consider using the standard platform specific fonts for normal text, and perhaps custom fonts for headers. OS regulated fonts provide more flexibility and are often chosen by the platform builders for (mostly) good reasons.  
+
+
 ## Roadmap
 
 - [x] Support original Markdown syntax

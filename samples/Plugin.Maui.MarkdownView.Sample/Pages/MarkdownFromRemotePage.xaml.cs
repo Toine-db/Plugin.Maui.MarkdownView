@@ -65,11 +65,12 @@ public partial class MarkdownFromRemotePage : ContentPage
             , string.Join(string.Empty,
                 remoteFile.Segments.Take(remoteFile.Segments.Length - 1)));
 
-        MarkdownView.ViewSupplier = new MauiBasicViewSupplier
+        MarkdownView.ViewSupplier = new MauiFormattedTextViewSupplier()
         {
             BasePathForRelativeUrlConversion = basePathRemoteFile,
             PrefixesToIgnoreForRelativeUrlConversion = Array.Empty<string>(),
-            Styles = new DefaultMauiBasicViewSupplierStyles()
+            Styles = new DefaultMauiBasicViewSupplierStyles(),
+            FormattedTextStyles = new DefaultMauiFormattedTextViewSupplierStyles()
         };
     }
 }
