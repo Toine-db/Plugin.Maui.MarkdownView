@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:markdownView="clr-namespace:Plugin.Maui.MarkdownView;assembly=Plugin.Maui.MarkdownView"
+             xmlns:mdv="clr-namespace:Plugin.Maui.MarkdownView;assembly=Plugin.Maui.MarkdownView"
              x:Class="Plugin.Maui.MarkdownView.Sample.Pages.MarkdownFromRemotePage"
              Title="MarkdownFromRemotePage">
 
-    <RefreshView x:Name="RefreshView" Refreshing="OnRefreshing" >
-        <ScrollView>
-            <markdownView:MarkdownView x:Name="MarkdownView" />
-        </ScrollView>
-    </RefreshView>
+    <Grid RowDefinitions="auto,*">
+        <Grid Padding="16"
+              Grid.Row="0"
+              BackgroundColor="DarkGray"
+              ColumnDefinitions="*,100"
+              ColumnSpacing="6">
+            <Entry 
+                x:Name="MarkdownUrlEntry"
+                Grid.Column="0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray500}}"
+                Placeholder="Enter URL" />
+            <Button 
+                Grid.Column="1"
+                Text="Load" 
+                Clicked="OnLoadMarkdownUrl" />
+        </Grid>
+
+        <RefreshView 
+            x:Name="RefreshView" 
+            Grid.Row="1"
+            Refreshing="OnRefreshing" >
+            <ScrollView>
+                <mdv:MarkdownView x:Name="MarkdownView" Margin="6,0,6,0" />
+            </ScrollView>
+        </RefreshView>
+    </Grid>
 
 </ContentPage>

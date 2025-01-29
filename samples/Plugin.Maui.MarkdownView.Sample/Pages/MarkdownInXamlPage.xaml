@@ -1,13 +1,53 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:markdownView="clr-namespace:Plugin.Maui.MarkdownView;assembly=Plugin.Maui.MarkdownView"
+             xmlns:mdv="clr-namespace:Plugin.Maui.MarkdownView;assembly=Plugin.Maui.MarkdownView"
+             xmlns:mdvs="clr-namespace:Plugin.Maui.MarkdownView.ViewSuppliers;assembly=Plugin.Maui.MarkdownView"
              x:Class="Plugin.Maui.MarkdownView.Sample.Pages.MarkdownInXamlPage"
              Title="MarkdownInXamlPage">
 
     <ScrollView>
         <!-- xml:space > workaround to keep line-breaks and spacing during HotReload -->
-        <markdownView:MarkdownView x:Name="MarkdownView" xml:space="preserve"> 
+        <mdv:MarkdownView x:Name="MarkdownView" 
+                          Margin="6,0,6,0"
+                          xml:space="preserve">
+            <mdv:MarkdownView.ViewSupplier>
+                <mdvs:MauiBasicViewSupplier>
+                    <mdvs:MauiBasicViewSupplier.Styles>
+                        <mdvs:MauiBasicViewSupplierStyles
+                            LayoutViewStyle="{StaticResource MarkdownLayoutViewStyle}"
+                            TextViewStyle="{StaticResource MarkdownTextViewStyle}"
+                            ListTextViewStyle="{StaticResource MarkdownListTextViewStyle}"
+                            BlockquotesTextViewStyle="{StaticResource MarkdownBlockquotesTextViewStyle}"
+                            HeaderViewLevel1Style="{StaticResource MarkdownHeaderViewLevel1Style}"
+                            HeaderViewLevel2Style="{StaticResource MarkdownHeaderViewLevel2Style}"
+                            HeaderViewLevel3Style="{StaticResource MarkdownHeaderViewLevel3Style}"
+                            HeaderViewLevel4Style="{StaticResource MarkdownHeaderViewLevel4Style}"
+                            HeaderViewLevel5Style="{StaticResource MarkdownHeaderViewLevel5Style}"
+                            HeaderViewLevel6Style="{StaticResource MarkdownHeaderViewLevel6Style}"
+                            BlockquotesOuterViewStyle="{StaticResource MarkdownBlockquotesOuterViewStyle}"
+                            BlockquotesInnerViewStyle="{StaticResource MarkdownBlockquotesInnerViewStyle}"
+                            FencedCodeBlockLayoutStyle="{StaticResource MarkdownFencedCodeBlockLayoutStyle}"
+                            FencedCodeBlockLabelStyle="{StaticResource MarkdownFencedCodeBlockLabelStyle}"
+                            HtmlBlockLayoutStyle="{StaticResource MarkdownHtmlBlockLayoutStyle}"
+                            HtmlBlockLabelStyle="{StaticResource MarkdownHtmlBlockLabelStyle}"
+                            ImageLayoutViewStyle="{StaticResource MarkdownImageLayoutViewStyle}"
+                            ImageSubscriptionViewStyle="{StaticResource MarkdownImageSubscriptionViewStyle}"
+                            ImageViewStyle="{StaticResource MarkdownImageViewStyle}"
+                            IndentedCodeBlockLabelStyle="{StaticResource MarkdownIndentedCodeBlockLabelStyle}"
+                            IndentedCodeBlockLayoutStyle="{StaticResource MarkdownIndentedCodeBlockLayoutStyle}"
+                            ListItemBulletViewLevel1Style="{StaticResource MarkdownListItemBulletViewLevel1Style}"
+                            ListItemBulletViewLevel2Style="{StaticResource MarkdownListItemBulletViewLevel2Style}"
+                            ListItemBulletViewLevel3Style="{StaticResource MarkdownListItemBulletViewLevel3Style}"
+                            ListItemBulletViewLevel4Style="{StaticResource MarkdownListItemBulletViewLevel4Style}"
+                            ListItemBulletViewLevel5Style="{StaticResource MarkdownListItemBulletViewLevel5Style}"
+                            ListItemBulletViewLevel6Style="{StaticResource MarkdownListItemBulletViewLevel6Style}"
+                            ListItemViewStyle="{StaticResource MarkdownListItemViewStyle}"
+                            ListViewStyle="{StaticResource MarkdownListViewStyle}"
+                            ThematicBreakStyle="{StaticResource MarkdownThematicBreakStyle}" />
+                    </mdvs:MauiBasicViewSupplier.Styles>
+                </mdvs:MauiBasicViewSupplier>
+            </mdv:MarkdownView.ViewSupplier>
 An h1 header
 ============
 
@@ -102,11 +142,15 @@ Now a nested list:
 Notice again how text always lines up on 4-space indents (including
 that last line which continues item 3 above).
 
+#### An h4 header ####
+
 Here's a link to [a website](http://foo.bar), to a [local
 doc](local-doc.html), and to a [section heading in the current
 doc](#an-h2-header). Here's a footnote [^1].
 
 [^1]: Some footnote text.
+
+##### An h5 header #####
 
 A horizontal rule follows.
 
@@ -126,6 +170,8 @@ tomatoes
 Again, text is indented 4 spaces. (Put a blank line between each
 term and  its definition to spread things out more.)
 
+###### An h6 header ######
+
 Here's a "line block" (note how whitespace is honored):
 
 | Line one
@@ -143,7 +189,7 @@ $$I = \int \rho R^{2} dV$$
 
 And note that you can backslash-escape any punctuation characters
 which you wish to be displayed literally, ex.: \`foo\`, \*bar\*, etc.
-            </markdownView:MarkdownView>
+            </mdv:MarkdownView>
     </ScrollView>
 
 </ContentPage>

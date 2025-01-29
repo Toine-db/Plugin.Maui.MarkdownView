@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+
+    <Style TargetType="VerticalStackLayout" x:Key="MarkdownLayoutViewStyle">
+        <Setter Property="Padding" Value="0,0,0,0" />
+        <Setter Property="Margin" Value="0,0,0,0" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownTextViewStyle">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+        <Setter Property="LineBreakMode" Value="WordWrap" />
+        <Setter Property="Margin" Value="0,8,0,8" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownListTextViewStyle" BasedOn="{StaticResource MarkdownTextViewStyle}">
+        <Setter Property="Margin" Value="0,0,0,2" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownHeaderViewLevel1Style">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource PrimaryDark}}" />
+        <Setter Property="Margin" Value="0,8,0,4" />
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="LineBreakMode" Value="WordWrap" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownHeaderViewLevel2Style" BasedOn="{StaticResource MarkdownHeaderViewLevel1Style}">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource SecondaryDarkText}}" />
+        <Setter Property="FontSize" Value="24" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownHeaderViewLevel3Style" BasedOn="{StaticResource MarkdownHeaderViewLevel2Style}">
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontSize" Value="22" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownHeaderViewLevel4Style" BasedOn="{StaticResource MarkdownHeaderViewLevel3Style}">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="FontSize" Value="18" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownHeaderViewLevel5Style" BasedOn="{StaticResource MarkdownHeaderViewLevel4Style}">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource SecondaryDarkText}}" />
+        <Setter Property="FontSize" Value="16" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownHeaderViewLevel6Style" BasedOn="{StaticResource MarkdownHeaderViewLevel5Style}">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style TargetType="Grid" x:Key="MarkdownBlockquotesOuterViewStyle">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+        <Setter Property="Padding" Value="6,0,0,0" />
+    </Style>
+
+    <Style TargetType="Grid" x:Key="MarkdownBlockquotesInnerViewStyle">
+        <!-- folow Page BackgroundColor -->
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
+        <Setter Property="Padding" Value="10,4,4,4" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownBlockquotesTextViewStyle" BasedOn="{StaticResource MarkdownTextViewStyle}">
+        <Setter Property="Margin" Value="0,0,0,0" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+    </Style>
+
+    <Style TargetType="Border" x:Key="MarkdownFencedCodeBlockLayoutStyle">
+        <Setter Property="StrokeThickness" Value="2" />
+        <Setter Property="StrokeDashArray" Value="2,2" />
+        <Setter Property="StrokeDashOffset" Value="2" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 8" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray100}}" />
+        <Setter Property="Padding" Value="8, 10" />
+    </Style>
+
+
+    <Style TargetType="Label" x:Key="MarkdownFencedCodeBlockLabelStyle">
+        <Setter Property="LineBreakMode" Value="WordWrap" />
+        <Setter Property="Margin" Value="8,0,0,0" />
+    </Style>
+
+    <Style TargetType="Border" x:Key="MarkdownIndentedCodeBlockLayoutStyle">
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 8" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray400}}" />
+        <Setter Property="Padding" Value="8, 10" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownHtmlBlockLayoutStyle">
+        <Setter Property="Padding" Value="8" />
+        <Setter Property="BackgroundColor" Value="LightBlue" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownIndentedCodeBlockLabelStyle">
+        <Setter Property="LineBreakMode" Value="WordWrap" />
+        <Setter Property="FontFamily" Value="OpenSansItalic" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Margin" Value="8,0,0,0" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownHtmlBlockLabelStyle">
+        <Setter Property="LineBreakMode" Value="WordWrap" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Margin" Value="0,0,0,0" />
+    </Style>
+
+    <Style TargetType="VerticalStackLayout" x:Key="MarkdownImageLayoutViewStyle">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+
+    <Style TargetType="Image" x:Key="MarkdownImageViewStyle">
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownImageSubscriptionViewStyle">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray100}}" />
+    </Style>
+
+    <Style TargetType="VerticalStackLayout" x:Key="MarkdownListViewStyle">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+
+    <Style TargetType="HorizontalStackLayout" x:Key="MarkdownListItemViewStyle">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" /> 
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownListItemBulletViewLevel1Style">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Margin" Value="4,0,5,0" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownListItemBulletViewLevel2Style" BasedOn="{StaticResource MarkdownListItemBulletViewLevel1Style}" >
+        <Setter Property="Margin">
+            <OnPlatform x:TypeArguments="Thickness" Default="1,5,5,0">
+                <On Platform="Android" Value="1,0,5,0" />
+            </OnPlatform>
+        </Setter>
+        <Setter Property="FontSize">
+            <OnPlatform x:TypeArguments="system:Double" Default="8">
+                <On Platform="Android" Value="14" />
+            </OnPlatform>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownListItemBulletViewLevel3Style" BasedOn="{StaticResource MarkdownListItemBulletViewLevel1Style}" >
+        <Setter Property="Margin" Value="1,4,5,0" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="MarkdownListItemBulletViewLevel4Style" BasedOn="{StaticResource MarkdownListItemBulletViewLevel2Style}" />
+
+    <Style TargetType="Label" x:Key="MarkdownListItemBulletViewLevel5Style" BasedOn="{StaticResource MarkdownListItemBulletViewLevel3Style}" />
+
+    <Style TargetType="Label" x:Key="MarkdownListItemBulletViewLevel6Style" BasedOn="{StaticResource MarkdownListItemBulletViewLevel2Style}" />
+
+    <Style TargetType="BoxView" x:Key="MarkdownThematicBreakStyle">
+        <Setter Property="HeightRequest" Value="2" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray100}}" />
+        <Setter Property="HorizontalOptions" Value="Fill" />
+    </Style>
+
+</ResourceDictionary>

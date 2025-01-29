@@ -1,5 +1,6 @@
 using MarkdownParser;
 using Microsoft.Extensions.Logging;
+using Plugin.Maui.MarkdownView.ViewSuppliers;
 
 namespace Plugin.Maui.MarkdownView;
 
@@ -39,16 +40,16 @@ public class MarkdownView : ContentView
     }
 
     public static readonly BindableProperty IsLoadingMarkdownProperty =
-        BindableProperty.Create(nameof(IsLoadingMarkdown), typeof(bool), typeof(MarkdownView), false);
+        BindableProperty.Create(nameof(IsLoadingMarkdown), typeof(bool), typeof(MarkdownView), false, BindingMode.OneWayToSource);
 
     public bool IsLoadingMarkdown
     {
         get => (bool)GetValue(IsLoadingMarkdownProperty);
-        set => SetValue(IsLoadingMarkdownProperty, value);
+        private set => SetValue(IsLoadingMarkdownProperty, value);
     }
 
     public static readonly BindableProperty ViewSupplierProperty =
-        BindableProperty.Create(nameof(ViewSupplier), typeof(IViewSupplier<View>), typeof(MarkdownView), null, propertyChanged: OnViewSupplierChanged);
+        BindableProperty.Create(nameof(ViewSupplier), typeof(IViewSupplier<View>), typeof(MarkdownView), null, BindingMode.TwoWay, propertyChanged: OnViewSupplierChanged);
 
     public IViewSupplier<View>? ViewSupplier
     {
@@ -126,7 +127,7 @@ public class MarkdownView : ContentView
 
         var uiComponentSupplier = ViewSupplier != null
             ? ViewSupplier 
-            : new MauiViewSupplier();
+            : new MauiBasicViewSupplier();
 
         var markdownParser = new MarkdownParser<View>(uiComponentSupplier);
 
