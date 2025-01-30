@@ -1,5 +1,6 @@
 using MarkdownParser;
 using Microsoft.Extensions.Logging;
+using Plugin.Maui.MarkdownView.Common;
 using Plugin.Maui.MarkdownView.ViewSuppliers;
 
 namespace Plugin.Maui.MarkdownView;
@@ -17,7 +18,7 @@ public class MarkdownView : ContentView
         _layout = new VerticalStackLayout();
 		Content = _layout;
 
-        _logger ??= Handler?.MauiContext?.Services.GetService<ILogger<MarkdownView>>();
+        _logger ??= this.GetLogger();
     }
 
     /// <summary>
@@ -55,6 +56,12 @@ public class MarkdownView : ContentView
     {
         get => (IViewSupplier<View>?)GetValue(ViewSupplierProperty);
         set => SetValue(ViewSupplierProperty, value);
+    }
+
+    public IView[] GetRootChildren()
+    {
+        var rootChildren = _layout.Children.ToArray();
+        return rootChildren;
     }
 
     private static void MarkdownTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
@@ -144,7 +151,7 @@ public class MarkdownView : ContentView
             }
 
             _logger?.Log(LogLevel.Trace, "Markdown used > {markdownText}", markdownText);
-            _logger?.Log(LogLevel.Information, "{viewCount} top-level views generated", views.Count);
+            _logger?.Log(LogLevel.Information, "{viewCount} top-level views created", views.Count);
         });
 
         IsLoadingMarkdown = false;

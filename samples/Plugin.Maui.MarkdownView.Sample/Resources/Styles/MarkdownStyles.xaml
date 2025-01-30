@@ -5,20 +5,34 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:system="clr-namespace:System;assembly=System.Runtime">
 
+    <Color x:Key="MarkdownSpanCodeBackgroundColorLight" >#E1E1E1</Color> <!-- copy Gray100 -->
+    <Color x:Key="MarkdownSpanCodeBackgroundColorDark" >#6E6E6E</Color> <!-- copy Gray500-->
+    <Color x:Key="MarkdownSpanHyperlinkTextColorLight">#512BD4</Color> <!-- copy Primary-->
+    <Color x:Key="MarkdownSpanHyperlinkTextColorDark">#ac99ea</Color> <!-- copy PrimaryDark-->
+
     <Style TargetType="VerticalStackLayout" x:Key="MarkdownLayoutViewStyle">
         <Setter Property="Padding" Value="0,0,0,0" />
         <Setter Property="Margin" Value="0,0,0,0" />
     </Style>
 
     <Style TargetType="Label" x:Key="MarkdownTextViewStyle">
+        <Setter Property="FontFamily" Value="" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
         <Setter Property="LineBreakMode" Value="WordWrap" />
         <Setter Property="Margin" Value="0,8,0,8" />
     </Style>
 
+    <Style TargetType="Span" x:Key="MarkdownSpanTextViewStyle">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+        <Setter Property="FontFamily" Value="" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
     <Style TargetType="Label" x:Key="MarkdownListTextViewStyle" BasedOn="{StaticResource MarkdownTextViewStyle}">
         <Setter Property="Margin" Value="0,0,0,2" />
     </Style>
+
+    <Style TargetType="Span" x:Key="MarkdownSpanListTextViewStyle" BasedOn="{StaticResource MarkdownSpanTextViewStyle}" />
 
     <Style TargetType="Label" x:Key="MarkdownHeaderViewLevel1Style">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource PrimaryDark}}" />
@@ -70,6 +84,10 @@
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
     </Style>
 
+    <Style TargetType="Span" x:Key="MarkdownSpanBlockquotesTextViewStyle" BasedOn="{StaticResource MarkdownSpanTextViewStyle}">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+    </Style>
+
     <Style TargetType="Border" x:Key="MarkdownFencedCodeBlockLayoutStyle">
         <Setter Property="StrokeThickness" Value="2" />
         <Setter Property="StrokeDashArray" Value="2,2" />
@@ -99,7 +117,7 @@
 
     <Style TargetType="Label" x:Key="MarkdownIndentedCodeBlockLabelStyle">
         <Setter Property="LineBreakMode" Value="WordWrap" />
-        <Setter Property="FontFamily" Value="OpenSansItalic" />
+        <Setter Property="FontAttributes" Value="Italic" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="Margin" Value="8,0,0,0" />
     </Style>

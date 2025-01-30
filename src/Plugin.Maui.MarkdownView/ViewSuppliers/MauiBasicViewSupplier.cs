@@ -1,11 +1,13 @@
 ﻿using MarkdownParser;
 using MarkdownParser.Models;
+using Plugin.Maui.MarkdownView.Common;
+using Plugin.Maui.MarkdownView.Controls;
 
 namespace Plugin.Maui.MarkdownView.ViewSuppliers;
 
 public class MauiBasicViewSupplier : IViewSupplier<View>
 {
-    public MauiBasicViewSupplierStyles? Styles { get; set; }
+    public IMauiBasicViewSupplierStyles? Styles { get; set; }
 
     public string? BasePathForRelativeUrlConversion { get; set; }
     public string[]? PrefixesToIgnoreForRelativeUrlConversion { get; set; }
@@ -20,20 +22,7 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
     public virtual View CreateTextView(TextBlock textBlock)
     {
         var content = textBlock.ExtractLiteralContent(Environment.NewLine);
-
-        Style? textViewStyle;
-        if (textBlock.AncestorsTree.Contains(BlockType.Quote))
-        {
-            textViewStyle = Styles?.BlockquotesTextViewStyle;
-        }
-        else if (textBlock.AncestorsTree.Contains(BlockType.List))
-        {
-            textViewStyle = Styles?.ListTextViewStyle;
-        }
-        else
-        {
-            textViewStyle = Styles?.TextViewStyle;
-        }
+        var textViewStyle = GetTextBlockStyleFor(textBlock);
 
         var textview = new Label
         {
@@ -76,10 +65,14 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
             _ => null
         };
 
-        var header = new Label
+        var headingId = content.Replace(" ", "-")
+                            .RemoveSpecialCharacters(['-']);
+
+        var header = new HeaderLabel
         {
             Style = style,
-            Text = content
+            Text = content,
+            HeadingId = headingId
         };
 
         return header;
@@ -87,6 +80,11 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
 
     public virtual View CreateImageView(string url, string subscription, string imageId)
     {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return new Label { Text = "Image URL is empty" };
+        }
+
         url = ConvertToAbsoluteUrlIfPossible(url);
 
         var stackLayout = new VerticalStackLayout
@@ -99,7 +97,7 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
             Style = Styles?.ImageViewStyle
         };
 
-        if (HasHttp(url))
+        if (url.HasHttp())
         {
             try
             {
@@ -322,9 +320,17 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
         return absolutePath;
     }
 
-    protected static bool HasHttp(string path)
+    protected virtual Style? GetTextBlockStyleFor(TextBlock textBlock)
     {
-        return path.StartsWith("http:")
-               || path.StartsWith("https:");
+        if (textBlock.AncestorsTree.Contains(BlockType.Quote))
+        {
+            return Styles?.BlockquotesTextViewStyle;
+        }
+        else if (textBlock.AncestorsTree.Contains(BlockType.List))
+        {
+            return Styles?.ListTextViewStyle;
+        }
+
+        return Styles?.TextViewStyle;
     }
 }
