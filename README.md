@@ -5,8 +5,9 @@
 
 - Easy to use
 - Highly customizable
+- :fire: Hot Reload support :fire:
 - For local and remote use cases
-- Hot Reload support :fire:
+- IgnoreSafeArea support
 - Massively scalable
 - Fully works with the default MAUI UI rendering
 - No hacking or other fragile mechanisms
@@ -115,7 +116,28 @@ This plugin has been created with only structured object-oriented code, without 
 For customizability, against the principles of some developers, almost all methods are virtual and ready to be overridden. Use this power wisely, you may break this system but the freedom it gives to make it your own is endless :smirk:.
 
 ### Use UI Hot-Reload on multiple platforms simultaneously
-- TODO:
+For UI Development purposes a dedicated dummy sample iOS project has been created to be used in a ‘multi startup projects’ scenario. This can be used to simultaneously use UI Hot-Reload on multiple platforms at the same time, that is iOS + a second desired platform.
+
+Because this scenario requires everything to be build for all desired platforms its recommended to manually build everything before starting a debug session with UI Hot-Reload.
+1.	Set ‘Plugin.Maui.MarkdownView.Sample’ as startup project
+2.	Set target to some iOS simulator
+3.	Build
+4.	Set target to some Android emulator or Windows device
+5.	Build
+6.	Set ‘Plugin.Maui.MarkdownView.Sample.iOS’ as startup project
+7.	Set target to some iOS simulator
+8.	Build
+9.	Start ‘Configure startup projects’
+    1. pick ‘Multiple startup projects’
+    2.	set MarkdownView to action ‘None’
+    3.	set MarkdownView.Sample to action ‘Start’ and target to an Android emulator or Windows device
+    4.	set MarkdownView.Sample.iOS to action ‘Start’ and target to an iOS simulator
+10.	Start debug session
+
+When you loose Hot-Reload for one of the platforms, do the following:
+1. Temporarily set ‘Plugin.Maui.MarkdownView.Sample’ as startup project and shortly start a debug session. 
+2. Set the ‘Plugin.Maui.MarkdownView.Sample’ to previous target 
+3. Start ‘Configure startup projects’ and set the Multiple startup projects settings as before
 
 ## Side Notes
 - Italic and Bold/Strong do not work on iOS with most custom fonts like OpenSans. Reset the Font with `<Setter Property="FontFamily" Value="" />` will force to use the platform designated Font. So check if your font is supported on iOS for using italic and bold if you wan to use it.

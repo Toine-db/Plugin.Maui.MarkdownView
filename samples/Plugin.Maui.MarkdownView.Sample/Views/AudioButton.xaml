@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Plugin.Maui.MarkdownView.Sample.Views.AudioButton"
+             x:Name="AudioButtonView">
+    <Button Text="{Binding Text, Source={x:Reference AudioButtonView}}"
+            Style="{Binding ButtonStyle, Source={x:Reference AudioButtonView}}"
+            Clicked="OnClicked"
+            x:Name="ButtonView" >
+        <Button.ImageSource>
+            <FontImageSource Glyph="&#xf04b;" 
+                             Color="{Binding TextColor, Source={x:Reference ButtonView}}"
+                             Size="{Binding FontSize, Source={x:Reference ButtonView}}"
+                             FontFamily="FontAwesomeSolid"/>
+        </Button.ImageSource>
+    </Button>
+</ContentView>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Grid xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Plugin.Maui.MarkdownView.Sample.Views.MenuItemView"
+             RowDefinitions="*, Auto" 
+             x:Name="MenuItem"
+             ColumnDefinitions="24,*,Auto">
+
+    <Grid.GestureRecognizers>
+        <TapGestureRecognizer Tapped="OnTapped" />
+    </Grid.GestureRecognizers>
+
+    <BoxView Grid.Row="1" Grid.ColumnSpan="3" 
+             Style="{Binding SeparatorStyle, Source={x:Reference MenuItem}}" />
+
+    <Image Grid.Row="0"
+           Grid.Column="0"
+           Aspect="Center"
+           HorizontalOptions="Center"
+           Margin="0,0">
+        <Image.Source>
+            <FontImageSource Glyph="{Binding Icon, Source={x:Reference MenuItem}}"
+                             FontFamily="FontAwesomeSolid"
+                             Size="16"
+                             Color="{Binding IconColor, Source={x:Reference MenuItem}}"/>
+        </Image.Source>
+    </Image>
+
+    <Label Grid.Row="0"
+           Grid.Column="1"
+           Style="{Binding LabelStyle, Source={x:Reference MenuItem}}"
+           Text="{Binding Text, Source={x:Reference MenuItem}}" />
+
+    <Image Grid.Row="0"
+           Grid.Column="2"
+           Margin="6,0, 12, 0" >
+        <Image.Source>
+            <FontImageSource Glyph="&#xf054;"
+                             FontFamily="FontAwesomeSolid"
+                             Size="12"
+                             Color="{Binding ChevronColor, Source={x:Reference MenuItem}}"/>
+        </Image.Source>
+    </Image>
+</Grid>

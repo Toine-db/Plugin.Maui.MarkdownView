@@ -9,7 +9,7 @@ public static class StringHelper
                || path.StartsWith("https:");
     }
 
-    public static string RemoveSpecialCharacters(this string input, char[] allowedSpecialChars)
+    public static string RemoveSpecialCharactersExcept(this string input, char[] allowedSpecialChars)
     {
         var sb = new StringBuilder();
         foreach (var chr in input)

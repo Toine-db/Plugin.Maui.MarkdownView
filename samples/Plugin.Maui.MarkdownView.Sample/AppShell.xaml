@@ -47,5 +47,15 @@
             <ShellContent ContentTemplate="{DataTemplate pages:MarkdownFromRemotePage}" />
         </Tab>
     </FlyoutItem>
+    <FlyoutItem Title="Full Example">
+        <FlyoutItem.FlyoutIcon>
+            <FontImageSource
+                FontFamily="FontAwesomeSolid"
+                Glyph="&#xe682;" />
+        </FlyoutItem.FlyoutIcon>
+        <Tab>
+            <ShellContent ContentTemplate="{DataTemplate pages:MarkdownFullExamplePage}" />
+        </Tab>
+    </FlyoutItem>
 
 </Shell>

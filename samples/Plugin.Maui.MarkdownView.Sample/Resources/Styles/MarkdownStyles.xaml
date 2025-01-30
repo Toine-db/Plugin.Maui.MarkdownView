@@ -185,4 +185,9 @@
         <Setter Property="HorizontalOptions" Value="Fill" />
     </Style>
 
+    <Style TargetType="VerticalStackLayout" x:Key="MarkdownLayoutForSplitTextViewStyle">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+
 </ResourceDictionary>

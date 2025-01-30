@@ -19,5 +19,6 @@ public class DefaultMauiFormattedTextViewSupplierStyles : MauiFormattedTextViewS
         styles.SpanHyperlinkTextDarkColor = (Color)resources["MarkdownSpanHyperlinkTextColorDark"];
         styles.SpanCodeBackgroundLightColor = (Color)resources["MarkdownSpanCodeBackgroundColorLight"];
         styles.SpanCodeBackgroundDarkColor = (Color)resources["MarkdownSpanCodeBackgroundColorDark"];
+        styles.LayoutForSplitTextViewStyle = (Style)resources["MarkdownLayoutForSplitTextViewStyle"];
     }
 }
