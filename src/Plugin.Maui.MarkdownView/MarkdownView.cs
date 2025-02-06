@@ -15,9 +15,14 @@ public class MarkdownView : ContentView
 
     public MarkdownView()
     {
-        _layout = new VerticalStackLayout();
+        _layout = new VerticalStackLayout
+        {
+            IgnoreSafeArea = this.IgnoreSafeArea,
+        };
 		Content = _layout;
-
+        
+        SyncIgnoreSafeAreaSettingToSupplier();
+        
         _logger ??= this.GetLogger();
     }
 
@@ -29,6 +34,23 @@ public class MarkdownView : ContentView
     {
         get => (string)GetValue(SpaceProperty);
         set => SetValue(SpaceProperty, value);
+    }
+
+    public static readonly BindableProperty InnerStackLayoutStyleProperty =
+        BindableProperty.Create(nameof(InnerStackLayoutStyle), typeof(Style), typeof(MarkdownView), default(Style), propertyChanged: InnerStackLayoutStyleChanged);
+
+    private static void InnerStackLayoutStyleChanged(BindableObject bindable, object oldvalue, object newvalue)
+    {
+        if (bindable is MarkdownView markdownView)
+        {
+            markdownView._layout.Style = (Style)newvalue;
+        }
+    }
+
+    public Style InnerStackLayoutStyle
+    {
+        get => (Style)GetValue(InnerStackLayoutStyleProperty);
+        set => SetValue(InnerStackLayoutStyleProperty, value);
     }
 
     public static readonly BindableProperty MarkdownTextProperty =
@@ -49,12 +71,21 @@ public class MarkdownView : ContentView
         private set => SetValue(IsLoadingMarkdownProperty, value);
     }
 
-    public static readonly BindableProperty ViewSupplierProperty =
-        BindableProperty.Create(nameof(ViewSupplier), typeof(IViewSupplier<View>), typeof(MarkdownView), null, BindingMode.TwoWay, propertyChanged: OnViewSupplierChanged);
+    public static readonly BindableProperty IgnoreSafeAreaProperty =
+        BindableProperty.Create(nameof(IgnoreSafeArea), typeof(bool), typeof(MarkdownView), false, propertyChanged: OnIgnoreSafeAreaChanged);
 
-    public IViewSupplier<View>? ViewSupplier
+    public bool IgnoreSafeArea
     {
-        get => (IViewSupplier<View>?)GetValue(ViewSupplierProperty);
+        get => (bool)GetValue(IgnoreSafeAreaProperty);
+        private set => SetValue(IgnoreSafeAreaProperty, value);
+    }
+
+    public static readonly BindableProperty ViewSupplierProperty =
+        BindableProperty.Create(nameof(ViewSupplier), typeof(IMauiViewSupplier), typeof(MarkdownView), null, BindingMode.TwoWay, propertyChanged: OnViewSupplierChanged);
+
+    public IMauiViewSupplier? ViewSupplier
+    {
+        get => (IMauiViewSupplier?)GetValue(ViewSupplierProperty);
         set => SetValue(ViewSupplierProperty, value);
     }
 
@@ -74,10 +105,31 @@ public class MarkdownView : ContentView
 
     private static void OnViewSupplierChanged(BindableObject bindable, object oldvalue, object newvalue)
     {
-        if (bindable is MarkdownView markdownView
-            && !string.IsNullOrWhiteSpace(markdownView.MarkdownText))
+        if (bindable is MarkdownView markdownView)
         {
-            markdownView.InvalidateMarkdownAsync();
+            markdownView.SyncIgnoreSafeAreaSettingToSupplier();
+
+            if (!string.IsNullOrWhiteSpace(markdownView.MarkdownText))
+            {
+                markdownView.InvalidateMarkdownAsync();
+            }
+        }
+    }
+
+    private static void OnIgnoreSafeAreaChanged(BindableObject bindable, object oldvalue, object newvalue)
+    {
+        if (bindable is MarkdownView markdownView)
+        {
+            markdownView._layout.IgnoreSafeArea = (bool)newvalue;
+            markdownView.SyncIgnoreSafeAreaSettingToSupplier();
+        }
+    }
+
+    protected void SyncIgnoreSafeAreaSettingToSupplier()
+    {
+        if (ViewSupplier != null)
+        {
+            ViewSupplier.IgnoreSafeArea = IgnoreSafeArea;
         }
     }
 

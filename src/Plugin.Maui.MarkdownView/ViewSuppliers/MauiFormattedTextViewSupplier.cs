@@ -11,21 +11,44 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
 {
     public MauiFormattedTextViewSupplierStyles? FormattedTextStyles { get; set; }
 
-    public override View CreateTextView(TextBlock textBlock)
+    public Func<HyperlinkSpan, Task>? OnHyperlinkTappedFallback { get; set; }
+
+    public override View? CreateTextView(TextBlock textBlock)
     {
         var textViewStyle = GetTextBlockStyleFor(textBlock);
         var spanStyle = GetSpanStyleFor(textBlock);
 
-        var formattedString = new FormattedString();
+        var collectedRootViews = new List<View?>();
+        var textSpansCache = new List<Span>();
 
         var activeIndicators = new List<SegmentIndicator>();
         LinkSegment? activeLinkSegment = null;
 
-        foreach (var textBlockSegment in textBlock.TextSegments)
+        foreach (var segment in textBlock.TextSegments)
         {
-            var literalContent = textBlockSegment.ToString();
-            
-            if (textBlockSegment is IndicatorSegment indicatorSegment)
+            // Placeholders like [my placeholder] can be one of two types:
+            // 1. Inline placeholder like a hyperlink (from ReferenceDefinitions) => this is handled by the default span and label creation 
+            // 2. Designated Placeholder to be a custom view => this is handled by the TryCreateDesignatedPlaceholderView method
+            if (segment is PlaceholderSegment placeholderSegment
+                && !DoesReferenceDefinitionsContainPlaceholder(placeholderSegment.PlaceholderId))
+            {
+                // Designated Placeholders cannot be placed inside a label
+                // because of this, we need to break current formatted span/label creation to inject the placeholder in between
+                var designatedPlaceholderView = CreateDesignatedPlaceholderView(placeholderSegment);
+                
+                // flush current Formatted spans if any
+                var view = TryCreateFormattedLabel(textSpansCache, textViewStyle);
+                collectedRootViews.Add(view);
+                textSpansCache.Clear();
+
+                // add designated Placeholder between to (possible) TextViews
+                collectedRootViews.Add(designatedPlaceholderView);
+
+                continue;
+            }
+
+            // Special segments like indicators
+            if (segment is IndicatorSegment indicatorSegment)
             {
                 switch (indicatorSegment.Indicator)
                 {
@@ -50,84 +73,137 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
 
                         break;
                     case SegmentIndicator.LineBreak:
-                        formattedString.Spans.Add(new Span { Text = Environment.NewLine });
+                        textSpansCache.Add(new Span { Text = Environment.NewLine });
                         break;
                 }
             }
-            
-            if (!string.IsNullOrWhiteSpace(literalContent))
+
+            // Segments with text
+            if (segment.HasLiteralContent)
             {
-                Span span;
-                if (activeIndicators.Contains(SegmentIndicator.Link))
-                {
-                    var text = string.IsNullOrWhiteSpace(activeLinkSegment?.Title) 
-                                    ? literalContent
-                                    : activeLinkSegment.Title;
-                    var url = activeLinkSegment?.Url ?? string.Empty;
+                var span = CreateSpan(segment, activeIndicators, activeLinkSegment, spanStyle);
+                AddFormattingToSpan(span, activeIndicators);
 
-                    span = new HyperlinkSpan
-                    {
-                        Text = text,
-                        Url = url,
-                        Style = spanStyle,
-                        TextDecorations = TextDecorations.Underline,
-                        Command = new Command<HyperlinkSpan>(OnHyperlinkTappedAsync)
-                    };
-
-                    if (FormattedTextStyles?.SpanHyperlinkTextLightColor != null
-                        && FormattedTextStyles?.SpanHyperlinkTextDarkColor != null)
-                    {
-                        span.SetAppThemeColor(Span.TextColorProperty,
-                            FormattedTextStyles.SpanHyperlinkTextLightColor,
-                            FormattedTextStyles.SpanHyperlinkTextDarkColor);
-                    }
-                }
-                else
-                {
-                    span = new Span
-                    {
-                        Text = literalContent,
-                        Style = spanStyle
-                    };
-                }
-                
-                if (activeIndicators.Contains(SegmentIndicator.Italic)
-                    && activeIndicators.Contains(SegmentIndicator.Strong))
-                {
-                    span.FontAttributes = FontAttributes.Italic | FontAttributes.Italic;
-                }
-                else if (activeIndicators.Contains(SegmentIndicator.Strong))
-                {
-                    span.FontAttributes = FontAttributes.Bold;
-                }
-                else if (activeIndicators.Contains(SegmentIndicator.Italic))
-                {
-                    span.FontAttributes = FontAttributes.Italic;
-                }
-
-                if (activeIndicators.Contains(SegmentIndicator.Code))
-                {
-                    span.SetAppThemeColor(Span.BackgroundColorProperty, 
-                        FormattedTextStyles?.SpanCodeBackgroundLightColor ?? Colors.Transparent, 
-                        FormattedTextStyles?.SpanCodeBackgroundDarkColor ?? Colors.Transparent);
-                }
-
-                if (activeIndicators.Contains(SegmentIndicator.Strikethrough))
-                {
-                    span.TextDecorations = TextDecorations.Strikethrough;
-                }
-
-                formattedString.Spans.Add(span);
+                textSpansCache.Add(span);
             }
         }
 
-        var textview = new Label
+        var textview = TryCreateFormattedLabel(textSpansCache, textViewStyle);
+        collectedRootViews.Add(textview);
+
+        var flattenedView = FlattenToSingleView(collectedRootViews);
+        return flattenedView;
+    }
+
+    protected virtual Span CreateSpan(BaseSegment segment, 
+        List<SegmentIndicator> activeIndicators, 
+        LinkSegment? activeLinkSegment, 
+        Style? spanStyle)
+    {
+        var literalContent = segment.ToString();
+        Span? span = null;
+
+        if (segment is PlaceholderSegment placeholderTextBlockSegment
+            && DoesReferenceDefinitionsContainPlaceholder(placeholderTextBlockSegment.PlaceholderId))
         {
-            Style = textViewStyle,
-            FormattedText = formattedString
+            var foundReferenceDefinition = PublishedMarkdownReferenceDefinitions?
+                .First(x => x.PlaceholderId == placeholderTextBlockSegment.PlaceholderId);
+
+            if (foundReferenceDefinition != null)
+            {
+                var url = foundReferenceDefinition.Url ?? foundReferenceDefinition.Title ?? string.Empty;
+
+                span = new HyperlinkSpan
+                {
+                    Text = literalContent,
+                    Url = url,
+                    Style = spanStyle,
+                    TextDecorations = TextDecorations.Underline,
+                    Command = new Command<HyperlinkSpan>(OnHyperlinkTappedAsync)
+                };
+
+                if (FormattedTextStyles?.SpanHyperlinkTextLightColor != null
+                    && FormattedTextStyles?.SpanHyperlinkTextDarkColor != null)
+                {
+                    span.SetAppThemeColor(Span.TextColorProperty,
+                        FormattedTextStyles.SpanHyperlinkTextLightColor,
+                        FormattedTextStyles.SpanHyperlinkTextDarkColor);
+                }
+            }
+        }
+        else if (activeIndicators.Contains(SegmentIndicator.Link))
+        {
+            var text = string.IsNullOrWhiteSpace(activeLinkSegment?.Title)
+                ? literalContent
+                : activeLinkSegment.Title;
+            var url = activeLinkSegment?.Url ?? string.Empty;
+
+            span = new HyperlinkSpan
+            {
+                Text = text,
+                Url = url,
+                Style = spanStyle,
+                TextDecorations = TextDecorations.Underline,
+                Command = new Command<HyperlinkSpan>(OnHyperlinkTappedAsync)
+            };
+
+            if (FormattedTextStyles?.SpanHyperlinkTextLightColor != null
+                && FormattedTextStyles?.SpanHyperlinkTextDarkColor != null)
+            {
+                span.SetAppThemeColor(Span.TextColorProperty,
+                    FormattedTextStyles.SpanHyperlinkTextLightColor,
+                    FormattedTextStyles.SpanHyperlinkTextDarkColor);
+            }
+        }
+
+        // default span creation
+        span ??= new Span
+        {
+            Text = literalContent,
+            Style = spanStyle
         };
 
-        return textview;
+        return span;
+    }
+
+    protected virtual void AddFormattingToSpan(Span span, List<SegmentIndicator> activeIndicators)
+    {
+        if (activeIndicators.Contains(SegmentIndicator.Italic)
+            && activeIndicators.Contains(SegmentIndicator.Strong))
+        {
+            span.FontAttributes = FontAttributes.Italic | FontAttributes.Italic;
+        }
+        else if (activeIndicators.Contains(SegmentIndicator.Strong))
+        {
+            span.FontAttributes = FontAttributes.Bold;
+        }
+        else if (activeIndicators.Contains(SegmentIndicator.Italic))
+        {
+            span.FontAttributes = FontAttributes.Italic;
+        }
+
+        if (activeIndicators.Contains(SegmentIndicator.Code))
+        {
+            span.SetAppThemeColor(Span.BackgroundColorProperty,
+                FormattedTextStyles?.SpanCodeBackgroundLightColor ?? Colors.Transparent,
+                FormattedTextStyles?.SpanCodeBackgroundDarkColor ?? Colors.Transparent);
+        }
+
+        if (activeIndicators.Contains(SegmentIndicator.Strikethrough))
+        {
+            span.TextDecorations = TextDecorations.Strikethrough;
+        }
+    }
+
+    protected virtual View? CreateDesignatedPlaceholderView(PlaceholderSegment placeholderSegment)
+    {
+        var mySpecialView = new Label
+        {
+            Style = Styles?.TextViewStyle,
+            Text = $">>>> placeholder '{placeholderSegment.PlaceholderId}' not found <<<<"
+        };
+
+        return mySpecialView;
     }
 
     protected virtual async void OnHyperlinkTappedAsync(HyperlinkSpan hyperlinkSpan)
@@ -147,7 +223,13 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
                 return;
             }
 
-            await Launcher.OpenAsync(new OpenFileRequest(hyperlinkSpan.Text, new ReadOnlyFile(url)));
+            if (OnHyperlinkTappedFallback != null)
+            {
+                await OnHyperlinkTappedFallback(hyperlinkSpan);
+                return;
+            }
+
+            throw new NotImplementedException("No fallback for OnHyperlinkTappedAsync available in OnHyperlinkTappedFallback");
         }
         catch (Exception exception)
         {
@@ -162,11 +244,60 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
         {
             return FormattedTextStyles?.SpanBlockquotesTextViewStyle;
         }
-        else if (textBlock.AncestorsTree.Contains(BlockType.List))
+        
+        if (textBlock.AncestorsTree.Contains(BlockType.List))
         {
             return FormattedTextStyles?.SpanListTextViewStyle;
         }
 
         return FormattedTextStyles?.SpanTextViewStyle;
+    }
+
+    protected virtual View? TryCreateFormattedLabel(List<Span> textSpans, Style? style)
+    {
+        if (!textSpans.Any())
+        {
+            return null;
+        }
+
+        var formattedString = new FormattedString();
+        foreach (var textSpan in textSpans)
+        {
+            formattedString.Spans.Add(textSpan);
+        }
+
+        var textview = new Label
+        {
+            Style = style,
+            FormattedText = formattedString
+        };
+
+        return textview;
+    }
+
+    protected virtual View? FlattenToSingleView(List<View?> views)
+    {
+        var validViews = views.Where(x => x != null).ToList();
+
+        switch (validViews.Count)
+        {
+            case 0:
+                return null;
+            case 1:
+                return validViews.First();
+            default:
+                var stackLayout = new VerticalStackLayout
+                {
+                    Style = FormattedTextStyles?.LayoutForSplitTextViewStyle,
+                    IgnoreSafeArea = IgnoreSafeArea
+                };
+
+                foreach (var view in validViews)
+                {
+                    stackLayout.Add(view);
+                }
+
+                return stackLayout;
+        }
     }
 }

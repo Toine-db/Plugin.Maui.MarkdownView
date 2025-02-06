@@ -1,6 +1,6 @@
 ﻿namespace Plugin.Maui.MarkdownView.ViewSuppliers;
 
-public class MauiBasicViewSupplierStyles : IMauiBasicViewSupplierStyles
+public class MauiBasicViewSupplierStyles
 {
     /// <summary>
     /// VerticalStackLayout style for stacking all Views
@@ -88,7 +88,7 @@ public class MauiBasicViewSupplierStyles : IMauiBasicViewSupplierStyles
     public Style? ListViewStyle { get; set; }
 
     /// <summary>
-    /// HorizontalStackLayout style for ListItemView
+    /// Grid style for ListItemView
     /// </summary>
     public Style? ListItemViewStyle { get; set; }
 

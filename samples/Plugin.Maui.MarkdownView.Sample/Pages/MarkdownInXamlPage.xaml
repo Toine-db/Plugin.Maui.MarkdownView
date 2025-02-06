@@ -13,7 +13,19 @@
                           xml:space="preserve">
             <mdv:MarkdownView.ViewSupplier>
                 <mdvs:MauiFormattedTextViewSupplier>
-                    <mdvs:MauiFormattedTextViewSupplier.Styles>
+                    <mdvs:MauiFormattedTextViewSupplier.FormattedTextStyles>
+                        <mdvs:MauiFormattedTextViewSupplierStyles
+                            SpanCodeBackgroundLightColor="{StaticResource MarkdownSpanCodeBackgroundColorLight}"
+                            SpanCodeBackgroundDarkColor="{StaticResource MarkdownSpanCodeBackgroundColorDark}"
+                            SpanHyperlinkTextLightColor="{StaticResource MarkdownSpanHyperlinkTextColorLight}"
+                            SpanHyperlinkTextDarkColor="{StaticResource MarkdownSpanHyperlinkTextColorDark}"
+                            SpanTextViewStyle="{StaticResource MarkdownSpanTextViewStyle}"
+                            SpanListTextViewStyle="{StaticResource MarkdownSpanListTextViewStyle}"
+                            SpanBlockquotesTextViewStyle="{StaticResource MarkdownSpanBlockquotesTextViewStyle}" 
+                            LayoutForSplitTextViewStyle="{StaticResource MarkdownLayoutForSplitTextViewStyle}"
+                            />
+                    </mdvs:MauiFormattedTextViewSupplier.FormattedTextStyles>
+                    <mdvs:MauiBasicViewSupplier.Styles>
                         <mdvs:MauiBasicViewSupplierStyles
                             LayoutViewStyle="{StaticResource MarkdownLayoutViewStyle}"
                             TextViewStyle="{StaticResource MarkdownTextViewStyle}"
@@ -45,28 +57,18 @@
                             ListItemViewStyle="{StaticResource MarkdownListItemViewStyle}"
                             ListViewStyle="{StaticResource MarkdownListViewStyle}"
                             ThematicBreakStyle="{StaticResource MarkdownThematicBreakStyle}" />
-                    </mdvs:MauiFormattedTextViewSupplier.Styles>
-                    <mdvs:MauiFormattedTextViewSupplier.FormattedTextStyles>
-                        <mdvs:MauiFormattedTextViewSupplierStyles
-                            SpanCodeBackgroundLightColor="{StaticResource MarkdownSpanCodeBackgroundColorLight}"
-                            SpanCodeBackgroundDarkColor="{StaticResource MarkdownSpanCodeBackgroundColorDark}"
-                            SpanHyperlinkTextLightColor="{StaticResource MarkdownSpanHyperlinkTextColorLight}"
-                            SpanHyperlinkTextDarkColor="{StaticResource MarkdownSpanHyperlinkTextColorDark}"
-                            SpanTextViewStyle="{StaticResource MarkdownSpanTextViewStyle}"
-                            SpanListTextViewStyle="{StaticResource MarkdownSpanListTextViewStyle}"
-                            SpanBlockquotesTextViewStyle="{StaticResource MarkdownSpanBlockquotesTextViewStyle}" />
-                    </mdvs:MauiFormattedTextViewSupplier.FormattedTextStyles>
+                    </mdvs:MauiBasicViewSupplier.Styles>
                 </mdvs:MauiFormattedTextViewSupplier>
             </mdv:MarkdownView.ViewSupplier>
 An h1 header
 ============
 
-Markdown in XAML! 
+Markdown in XAML!
 
 Paragraphs are separated by a blank line.
 
 2nd paragraph. *Italic*, **bold**, ~~strikethrough~~, and `monospace`. 
-Itemized lists look like:
+Itemized lists look like: 
 
   * item one
   * item *two*
@@ -156,9 +158,11 @@ that last line which continues item 3 above).
 
 Here's a link to [a website](http://foo.bar), to a [local
 doc](local-doc.html), and to a [section heading in the current
-doc](#an-h2-header). Here's a footnote [^1].
+doc](#an-h2-header). 
+            
+Here's a footnote to [Lorem Ipsum].
 
-[^1]: Some footnote text.
+[Lorem Ipsum]: https://www.lipsum.com/
 
 ##### An h5 header #####
 

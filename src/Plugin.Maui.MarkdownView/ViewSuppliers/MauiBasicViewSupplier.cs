@@ -1,25 +1,37 @@
-﻿using MarkdownParser;
-using MarkdownParser.Models;
+﻿using MarkdownParser.Models;
 using Plugin.Maui.MarkdownView.Common;
 using Plugin.Maui.MarkdownView.Controls;
 
 namespace Plugin.Maui.MarkdownView.ViewSuppliers;
 
-public class MauiBasicViewSupplier : IViewSupplier<View>
+public class MauiBasicViewSupplier : IMauiViewSupplier
 {
-    public IMauiBasicViewSupplierStyles? Styles { get; set; }
+    public MauiBasicViewSupplierStyles? Styles { get; set; }
 
     public string? BasePathForRelativeUrlConversion { get; set; }
     public string[]? PrefixesToIgnoreForRelativeUrlConversion { get; set; }
 
     public IEnumerable<MarkdownReferenceDefinition>? PublishedMarkdownReferenceDefinitions { get; private set; }
 
+    public bool IgnoreSafeArea { get; set; }
+
+    public bool DoesReferenceDefinitionsContainPlaceholder(string placeholderId)
+    {
+        if (string.IsNullOrWhiteSpace(placeholderId))
+        {
+            return false;
+        }
+
+        var isKnown = PublishedMarkdownReferenceDefinitions?.Any(x => x.PlaceholderId == placeholderId) ?? false;
+        return isKnown;
+    }
+
     public virtual void OnReferenceDefinitionsPublished(IEnumerable<MarkdownReferenceDefinition> markdownReferenceDefinitions)
     {
         PublishedMarkdownReferenceDefinitions = markdownReferenceDefinitions;
     }
 
-    public virtual View CreateTextView(TextBlock textBlock)
+    public virtual View? CreateTextView(TextBlock textBlock)
     {
         var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var textViewStyle = GetTextBlockStyleFor(textBlock);
@@ -33,24 +45,31 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
         return textview;
     }
 
-    public virtual View CreateBlockquotesView(View childView)
+    public virtual View? CreateBlockquotesView(View? childView)
     {
+        if (childView == null)
+        {
+            return null;
+        }
+
         var innerBlockView = new Grid
         {
             Style = Styles?.BlockquotesInnerViewStyle,
+            IgnoreSafeArea = IgnoreSafeArea,
             Children = { childView }
         };
 
         var outerBlockView = new Grid()
         {
             Style = Styles?.BlockquotesOuterViewStyle,
+            IgnoreSafeArea = IgnoreSafeArea,
             Children = { innerBlockView }
         };
 
         return outerBlockView;
     }
 
-    public virtual View CreateHeaderView(TextBlock textBlock, int headerLevel)
+    public virtual View? CreateHeaderView(TextBlock textBlock, int headerLevel)
     {
         var content = textBlock.ExtractLiteralContent(Environment.NewLine);
 
@@ -66,7 +85,7 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
         };
 
         var headingId = content.Replace(" ", "-")
-                            .RemoveSpecialCharacters(['-']);
+                            .RemoveSpecialCharactersExcept(['-']);
 
         var header = new HeaderLabel
         {
@@ -78,7 +97,7 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
         return header;
     }
 
-    public virtual View CreateImageView(string url, string subscription, string imageId)
+    public virtual View? CreateImageView(string url, string subscription, string imageId)
     {
         if (string.IsNullOrWhiteSpace(url))
         {
@@ -89,7 +108,8 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
 
         var stackLayout = new VerticalStackLayout
         {
-            Style = Styles?.ImageLayoutViewStyle
+            Style = Styles?.ImageLayoutViewStyle,
+            IgnoreSafeArea = IgnoreSafeArea
         };
 
         var imageView = new Image
@@ -126,26 +146,46 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
         return stackLayout;
     }
 
-    public virtual View CreateListItemView(View childView, bool isOrderedList, int sequenceNumber, int listLevel)
+    public virtual View? CreateListItemView(View? childView, bool isOrderedList, int sequenceNumber, int listLevel)
     {
-        var stackLayout = new HorizontalStackLayout
+        if (childView == null)
         {
-            Style = Styles?.ListItemViewStyle
+            return null;
+        }
+
+        var layout = new Grid()
+        {
+            Style = Styles?.ListItemViewStyle,
+            IgnoreSafeArea = IgnoreSafeArea,
+            ColumnDefinitions =
+            [
+                new ColumnDefinition { Width = GridLength.Auto },
+                new ColumnDefinition { Width = GridLength.Star }
+            ]
         };
 
         var bulletView = CreateListItemBullet(isOrderedList, sequenceNumber, listLevel);
+        Grid.SetColumn(bulletView, 0);
+        Grid.SetColumn(childView, 1);
 
-        stackLayout.Children.Add(bulletView);
-        stackLayout.Children.Add(childView);
+        layout.Children.Add(bulletView);
+        layout.Children.Add(childView);
 
-        return stackLayout;
+        return layout;
     }
 
-    public virtual View CreateListView(List<View> items)
+    public virtual View? CreateListView(List<View?> items)
     {
+        if (items == null
+            || !items.Any())
+        {
+            return null;
+        }
+
         var stackLayout = new VerticalStackLayout
         {
-            Style = Styles?.ListViewStyle
+            Style = Styles?.ListViewStyle,
+            IgnoreSafeArea = IgnoreSafeArea
         };
 
         foreach (var view in items)
@@ -156,16 +196,7 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
         return stackLayout;
     }
 
-    public virtual View CreatePlaceholder(string placeholderName)
-    {
-        return new Label
-        {
-            LineBreakMode = LineBreakMode.WordWrap,
-            Text = $"PLACEHOLDER - {placeholderName} - PLACEHOLDER"
-        };
-    }
-
-    public virtual View CreateFencedCodeBlock(TextBlock textBlock, string codeInfo)
+    public virtual View? CreateFencedCodeBlock(TextBlock textBlock, string codeInfo)
     {
         var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var label = new Label
@@ -183,7 +214,7 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
         return blockView;
     }
 
-    public virtual View CreateIndentedCodeBlock(TextBlock textBlock)
+    public virtual View? CreateIndentedCodeBlock(TextBlock textBlock)
     {
         var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var label = new Label
@@ -201,7 +232,7 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
         return blockView;
     }
 
-    public virtual View CreateHtmlBlock(TextBlock textBlock)
+    public virtual View? CreateHtmlBlock(TextBlock textBlock)
     {
         var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var label = new Label
@@ -213,17 +244,24 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
         var blockView = new Grid
         {
             Style = Styles?.HtmlBlockLayoutStyle,
+            IgnoreSafeArea = IgnoreSafeArea,
             Children = { label }
         };
 
         return blockView;
     }
 
-    public virtual View CreateStackLayoutView(List<View> childViews)
+    public virtual View? CreateStackLayoutView(List<View?> childViews)
     {
+        if (childViews == null)
+        {
+            return null;
+        }
+
         var stackLayout = new VerticalStackLayout
         {
             Style = Styles?.LayoutViewStyle,
+            IgnoreSafeArea = IgnoreSafeArea
         };
 
         foreach (var view in childViews)
@@ -234,7 +272,7 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
         return stackLayout;
     }
 
-    public virtual View CreateThematicBreak()
+    public virtual View? CreateThematicBreak()
     {
         return new BoxView
         {
@@ -247,7 +285,7 @@ public class MauiBasicViewSupplier : IViewSupplier<View>
         PublishedMarkdownReferenceDefinitions = [];
     }
 
-    protected virtual View CreateListItemBullet(bool isOrderedList, int sequenceNumber, int listLevel)
+    protected virtual View? CreateListItemBullet(bool isOrderedList, int sequenceNumber, int listLevel)
     {
         var bulletStyle = listLevel switch
         {

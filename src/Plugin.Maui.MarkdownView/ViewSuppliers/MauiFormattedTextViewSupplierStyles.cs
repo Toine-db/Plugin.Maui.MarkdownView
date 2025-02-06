@@ -36,4 +36,9 @@ public class MauiFormattedTextViewSupplierStyles
     /// Span style for TextView in Blockquotes
     /// </summary>
     public Style? SpanBlockquotesTextViewStyle { get; set; }
+
+    /// <summary>
+    /// VerticalStackLayout style for Views when broken by designated placeholder
+    /// </summary>
+    public Style? LayoutForSplitTextViewStyle { get; set; }
 }
