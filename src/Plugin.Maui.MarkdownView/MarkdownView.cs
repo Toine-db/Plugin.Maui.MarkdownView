@@ -36,23 +36,6 @@ public class MarkdownView : ContentView
         set => SetValue(SpaceProperty, value);
     }
 
-    public static readonly BindableProperty InnerStackLayoutStyleProperty =
-        BindableProperty.Create(nameof(InnerStackLayoutStyle), typeof(Style), typeof(MarkdownView), default(Style), propertyChanged: InnerStackLayoutStyleChanged);
-
-    private static void InnerStackLayoutStyleChanged(BindableObject bindable, object oldvalue, object newvalue)
-    {
-        if (bindable is MarkdownView markdownView)
-        {
-            markdownView._layout.Style = (Style)newvalue;
-        }
-    }
-
-    public Style InnerStackLayoutStyle
-    {
-        get => (Style)GetValue(InnerStackLayoutStyleProperty);
-        set => SetValue(InnerStackLayoutStyleProperty, value);
-    }
-
     public static readonly BindableProperty MarkdownTextProperty =
         BindableProperty.Create(nameof(MarkdownText), typeof(string), typeof(MarkdownView), string.Empty, propertyChanged: MarkdownTextPropertyChanged);
 
@@ -89,10 +72,27 @@ public class MarkdownView : ContentView
         set => SetValue(ViewSupplierProperty, value);
     }
 
+    public static readonly BindableProperty InnerStackLayoutStyleProperty =
+        BindableProperty.Create(nameof(InnerStackLayoutStyle), typeof(Style), typeof(MarkdownView), default(Style), propertyChanged: InnerStackLayoutStyleChanged);
+
+    public Style InnerStackLayoutStyle
+    {
+        get => (Style)GetValue(InnerStackLayoutStyleProperty);
+        set => SetValue(InnerStackLayoutStyleProperty, value);
+    }
+
     public IView[] GetRootChildren()
     {
         var rootChildren = _layout.Children.ToArray();
         return rootChildren;
+    }
+
+    private static void InnerStackLayoutStyleChanged(BindableObject bindable, object oldvalue, object newvalue)
+    {
+        if (bindable is MarkdownView markdownView)
+        {
+            markdownView._layout.Style = (Style)newvalue;
+        }
     }
 
     private static void MarkdownTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)

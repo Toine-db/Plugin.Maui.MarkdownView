@@ -6,10 +6,10 @@
 - Easy to use
 - Highly customizable
 - :fire: Hot Reload support :fire:
-- For local and remote use cases
 - IgnoreSafeArea support
 - Massively scalable
-- Fully works with the default MAUI UI rendering
+- Perfect for local and remote use cases
+- Fully works with default MAUI UI rendering
 - No hacking or other fragile mechanisms
 
 ## Install Plugin
@@ -36,7 +36,7 @@ With the rise of MAUI I thought this was a great time to make it public, because
 
 `Plugin.Maui.MarkdownView` provides the `MarkdownView` class as a MAUI View.
 
-The MarkdownView has one single required property for the Markdown text, this can be set using it's `Content` field in XAML or the `MarkdownText` property in the code behind. When using the Content field in XAML it automaticly supports :fire: UI Hot-Reload :fire:.
+The MarkdownView has one required property for the Markdown text, this can be set using it's `Content` field in XAML or the `MarkdownText` property in the code behind. When using the Content field in XAML it automaticly supports :fire: UI Hot-Reload :fire:.
 
 XAML
 ```xaml
@@ -56,17 +56,18 @@ using var reader = new StreamReader(stream);
 MyMarkdownView.MarkdownText = await reader.ReadToEndAsync();
 ```
 
-Check out the Pages in the [Plugin.Maui.MarkdownView.Sample](https://github.com/Toine-db/Plugin.Maui.MarkdownView/tree/main/samples) project for some detailed examples.
-- MarkdownInXamlPage : Shows how to use the `Content` field in XAML.
-- MarkdownFromRemotePage : Shows how to load a markdown file from a remote server.
+Check out the Pages in the [Plugin.Maui.MarkdownView.Sample](https://github.com/Toine-db/Plugin.Maui.MarkdownView/tree/main/samples) project for detailed examples.
+- MarkdownInXamlPage : how to use the `Content` field in XAML
+- MarkdownFromRemotePage : how to load a markdown file from a remote server
+- MarkdownFullExamplePage : full blown example how to style and customize
 
 ### Quick start
 
-Two small steps to quickly start using MarkdownView and get the most of its power:
-  1. copy-paste the `MarkdownStyles.xaml` into your project
-  2. copy-paste the complete `<mdv:MarkdownView>` from the MarkdownInXamlPage where ever you want to use it
+Two steps to quickly get started with MarkdownView and get the most of its power right away:
+  1. copy-paste the styles `MarkdownStyles.xaml` into your project
+  2. copy-paste the complete `<mdv:MarkdownView>` from the MarkdownInXamlPage where ever you want to use the control
 
-Now you can change the Markdown content in the `<mdv:MarkdownView>` and start styling it with the `MarkdownStyles.xaml` file.
+Now you can change the Markdown content in the `<mdv:MarkdownView>` and start styling it with the `MarkdownStyles.xaml` file or customize your own IMauiViewSupplier.
 
 ### Permissions
 
@@ -78,7 +79,9 @@ No dependency injection required :confetti_ball:
 
 ### Feature
 
-Once you have created a `MarkdownView` you can interact with it in the following ways:
+Once you have created a `MarkdownView` you can interact with its properties and specialy by using `ViewSupplier` that handles the view creation. 
+
+Most interesting components to use:
 
 #### Properties
 
@@ -94,20 +97,30 @@ Gets a value indicating whether control is parsing markdown text to views.
 
 ##### `ViewSupplier`
 
-Sets a value for IViewSupplier that creates the views.
+Sets a value for IMauiViewSupplier that creates the views. Here you have three options:
+* _MauiBasicViewSupplier_ : very basic view generator
+* _MauiFormattedTextViewSupplier_ : view generator that also supports placeholders and substring styling like italic, bold, etc (inherits MauiBasicViewSupplier)
+* _Your custom IMauiViewSupplier_ : your own custom view creator, its recommended to inherit from MauiFormattedTextViewSupplier and start overriding methods
 
-##### `MauiViewSupplier.Styles`
+##### `MauiBasicViewSupplier.Styles`
 
 When using MauiViewSupplier as IViewSupplier (this is default), the supplier uses this property to look for optional styles.
 
-##### `MauiViewSupplier.BasePathForRelativeUrlConversion`
+##### `MauiBasicViewSupplier.BasePathForRelativeUrlConversion`
 
 When using MauiViewSupplier as IViewSupplier (this is default), the supplier tries to convert links to the correct path using this a property as base path.
 
-##### `MauiViewSupplier.PrefixesToIgnoreForRelativeUrlConversion`
+##### `MauiBasicViewSupplier.PrefixesToIgnoreForRelativeUrlConversion`
 
 When using MauiViewSupplier as IViewSupplier (this is default), The provider tries to convert links to the correct path, except for values ​​with a prefix from this property.
 
+##### `MauiFormattedTextViewSupplier.FormattedTextStyles`
+
+When using MauiFormattedTextViewSupplier as IViewSupplier, the supplier uses this property to look for optional styles for formatted text.
+
+##### `MauiFormattedTextViewSupplier.OnHyperlinkTappedFallback`
+
+When using MauiFormattedTextViewSupplier as IViewSupplier, the supplier uses this property as last fallback when hyperlink can not open external url or find heading to navigate to.
 
 ## Customizability
 
@@ -147,7 +160,7 @@ When you loose Hot-Reload for one of the platforms, do the following:
 ## Roadmap
 
 - [x] Support original Markdown syntax
-- [ ] Support some extended markdown syntax (like tables)
+- [ ] Support more extended markdown syntax (like tables)
   - _requires update [MarkdownParser](https://github.com/Toine-db/MarkdownParser/tree/main)_ dependency
 
 # Acknowledgements

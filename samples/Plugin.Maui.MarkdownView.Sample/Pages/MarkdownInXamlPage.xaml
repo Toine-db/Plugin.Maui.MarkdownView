@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mdv="clr-namespace:Plugin.Maui.MarkdownView;assembly=Plugin.Maui.MarkdownView"
              xmlns:mdvs="clr-namespace:Plugin.Maui.MarkdownView.ViewSuppliers;assembly=Plugin.Maui.MarkdownView"
+             xmlns:styles="clr-namespace:Plugin.Maui.MarkdownView.Sample.Resources.Styles"
              x:Class="Plugin.Maui.MarkdownView.Sample.Pages.MarkdownInXamlPage"
              Title="MarkdownInXamlPage">
 
@@ -14,49 +15,10 @@
             <mdv:MarkdownView.ViewSupplier>
                 <mdvs:MauiFormattedTextViewSupplier>
                     <mdvs:MauiFormattedTextViewSupplier.FormattedTextStyles>
-                        <mdvs:MauiFormattedTextViewSupplierStyles
-                            SpanCodeBackgroundLightColor="{StaticResource MarkdownSpanCodeBackgroundColorLight}"
-                            SpanCodeBackgroundDarkColor="{StaticResource MarkdownSpanCodeBackgroundColorDark}"
-                            SpanHyperlinkTextLightColor="{StaticResource MarkdownSpanHyperlinkTextColorLight}"
-                            SpanHyperlinkTextDarkColor="{StaticResource MarkdownSpanHyperlinkTextColorDark}"
-                            SpanTextViewStyle="{StaticResource MarkdownSpanTextViewStyle}"
-                            SpanListTextViewStyle="{StaticResource MarkdownSpanListTextViewStyle}"
-                            SpanBlockquotesTextViewStyle="{StaticResource MarkdownSpanBlockquotesTextViewStyle}" 
-                            LayoutForSplitTextViewStyle="{StaticResource MarkdownLayoutForSplitTextViewStyle}"
-                            />
+                        <styles:DefaultMauiFormattedTextViewSupplierStyles />
                     </mdvs:MauiFormattedTextViewSupplier.FormattedTextStyles>
                     <mdvs:MauiBasicViewSupplier.Styles>
-                        <mdvs:MauiBasicViewSupplierStyles
-                            LayoutViewStyle="{StaticResource MarkdownLayoutViewStyle}"
-                            TextViewStyle="{StaticResource MarkdownTextViewStyle}"
-                            ListTextViewStyle="{StaticResource MarkdownListTextViewStyle}"
-                            BlockquotesTextViewStyle="{StaticResource MarkdownBlockquotesTextViewStyle}"
-                            HeaderViewLevel1Style="{StaticResource MarkdownHeaderViewLevel1Style}"
-                            HeaderViewLevel2Style="{StaticResource MarkdownHeaderViewLevel2Style}"
-                            HeaderViewLevel3Style="{StaticResource MarkdownHeaderViewLevel3Style}"
-                            HeaderViewLevel4Style="{StaticResource MarkdownHeaderViewLevel4Style}"
-                            HeaderViewLevel5Style="{StaticResource MarkdownHeaderViewLevel5Style}"
-                            HeaderViewLevel6Style="{StaticResource MarkdownHeaderViewLevel6Style}"
-                            BlockquotesOuterViewStyle="{StaticResource MarkdownBlockquotesOuterViewStyle}"
-                            BlockquotesInnerViewStyle="{StaticResource MarkdownBlockquotesInnerViewStyle}"
-                            FencedCodeBlockLayoutStyle="{StaticResource MarkdownFencedCodeBlockLayoutStyle}"
-                            FencedCodeBlockLabelStyle="{StaticResource MarkdownFencedCodeBlockLabelStyle}"
-                            HtmlBlockLayoutStyle="{StaticResource MarkdownHtmlBlockLayoutStyle}"
-                            HtmlBlockLabelStyle="{StaticResource MarkdownHtmlBlockLabelStyle}"
-                            ImageLayoutViewStyle="{StaticResource MarkdownImageLayoutViewStyle}"
-                            ImageSubscriptionViewStyle="{StaticResource MarkdownImageSubscriptionViewStyle}"
-                            ImageViewStyle="{StaticResource MarkdownImageViewStyle}"
-                            IndentedCodeBlockLabelStyle="{StaticResource MarkdownIndentedCodeBlockLabelStyle}"
-                            IndentedCodeBlockLayoutStyle="{StaticResource MarkdownIndentedCodeBlockLayoutStyle}"
-                            ListItemBulletViewLevel1Style="{StaticResource MarkdownListItemBulletViewLevel1Style}"
-                            ListItemBulletViewLevel2Style="{StaticResource MarkdownListItemBulletViewLevel2Style}"
-                            ListItemBulletViewLevel3Style="{StaticResource MarkdownListItemBulletViewLevel3Style}"
-                            ListItemBulletViewLevel4Style="{StaticResource MarkdownListItemBulletViewLevel4Style}"
-                            ListItemBulletViewLevel5Style="{StaticResource MarkdownListItemBulletViewLevel5Style}"
-                            ListItemBulletViewLevel6Style="{StaticResource MarkdownListItemBulletViewLevel6Style}"
-                            ListItemViewStyle="{StaticResource MarkdownListItemViewStyle}"
-                            ListViewStyle="{StaticResource MarkdownListViewStyle}"
-                            ThematicBreakStyle="{StaticResource MarkdownThematicBreakStyle}" />
+                        <styles:DefaultMauiBasicViewSupplierStyles />
                     </mdvs:MauiBasicViewSupplier.Styles>
                 </mdvs:MauiFormattedTextViewSupplier>
             </mdv:MarkdownView.ViewSupplier>

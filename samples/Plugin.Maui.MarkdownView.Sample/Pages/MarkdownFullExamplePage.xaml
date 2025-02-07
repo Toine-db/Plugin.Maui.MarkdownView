@@ -70,7 +70,8 @@
                             SpanHyperlinkTextDarkColor="{StaticResource ExampleMarkdownSpanHyperlinkTextColorDark}"
                             SpanTextViewStyle="{StaticResource ExampleMarkdownSpanTextViewStyle}"
                             SpanListTextViewStyle="{StaticResource ExampleMarkdownSpanListTextViewStyle}"
-                            SpanBlockquotesTextViewStyle="{StaticResource ExampleMarkdownSpanBlockquotesTextViewStyle}" />
+                            SpanBlockquotesTextViewStyle="{StaticResource ExampleMarkdownSpanBlockquotesTextViewStyle}" 
+                            LayoutForSplitTextViewStyle="{StaticResource ExampleMarkdownLayoutForSplitTextViewStyle}" />
                     </mdvs:MauiFormattedTextViewSupplier.FormattedTextStyles>
                 </customViewSuppliers:MyViewSupplier>
             </mdv:MarkdownView.ViewSupplier>
