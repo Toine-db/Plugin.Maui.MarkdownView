@@ -173,4 +173,5 @@ This project could not have came to be without these projects and people, thank 
 # Video
 
 MarkdownView Quick-Peek:
-https://github.com/Toine-db/Plugin.Maui.MarkdownView/raw/refs/heads/main/demo/maui-markdownview-quick-peek.mp4
+
+[![Watch the video](https://raw.githubusercontent.com/Toine-db/Plugin.Maui.MarkdownView/main/demo/maui-markdownview-quick-peek.png)](https://youtu.be/ZvUlcuIAdV8)
