@@ -9,7 +9,7 @@ public class DefaultMauiFormattedTextViewSupplierStyles : MauiFormattedTextViewS
         LoadDefaultFormattedTextStylesIn(this);
     }
 
-    public static void LoadDefaultFormattedTextStylesIn(DefaultMauiFormattedTextViewSupplierStyles styles)
+    public static void LoadDefaultFormattedTextStylesIn(MauiFormattedTextViewSupplierStyles styles)
     {
         var resources = Application.Current!.Resources;
         styles.SpanTextViewStyle = (Style)resources["MarkdownSpanTextViewStyle"];
