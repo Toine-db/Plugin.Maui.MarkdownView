@@ -1,6 +1,8 @@
 ﻿![nuget.png](https://raw.githubusercontent.com/Toine-db/Plugin.Maui.MarkdownView/main/nuget.png)
 # Plugin.Maui.MarkdownView
 
+:movie_camera: Quick-peek video [here](#video)
+
 `Plugin.Maui.MarkdownView` provides the ability to create your UI based on Markdown files.
 
 - Easy to use
@@ -167,3 +169,8 @@ When you loose Hot-Reload for one of the platforms, do the following:
 
 This project could not have came to be without these projects and people, thank you! <3 :clap:
 - You ;-) 
+
+# Video
+
+MarkdownView Quick-Peek:
+https://github.com/Toine-db/Plugin.Maui.MarkdownView/raw/refs/heads/main/demo/maui-markdownview-quick-peek.mp4
