@@ -266,7 +266,7 @@
 
     <Style TargetType="VerticalStackLayout" x:Key="ExampleMarkdownImageLayoutViewStyle">
         <Setter Property="Padding" Value="0" />
-        <Setter Property="Margin" Value="0" />
+        <Setter Property="Margin" Value="0,4,8,8" />
     </Style>
 
     <Style TargetType="Image" x:Key="ExampleMarkdownImageViewStyle">
