@@ -13,11 +13,8 @@
 
     <ScrollView>
         <!-- xml:space > workaround to keep line-breaks and spacing during HotReload -->
-        <mdv:MarkdownView x:Name="MarkdownView"
-                          IgnoreSafeArea="True"
-                          Style="{StaticResource ExampleMarkdownViewStyle}"
-                          InnerStackLayoutStyle="{StaticResource ExampleMarkdownViewInnerLayoutStyle}"
-                          xml:space="preserve">
+        <mdv:MarkdownView IgnoreSafeArea="True" xml:space="preserve"
+                          Style="{StaticResource ExampleMarkdownViewStyle}" InnerStackLayoutStyle="{StaticResource ExampleMarkdownViewInnerLayoutStyle}" >
             <mdv:MarkdownView.ViewSupplier>
                 <customViewSuppliers:MyViewSupplier x:Name="MyViewSupplier">
                     <customViewSuppliers:MyViewSupplier.ExtraStyles>
@@ -40,6 +37,8 @@ Sed dignissim tortor diam, sed semper felis dapibus ut. Sed sed facilisis turpis
 
 Integer sed imperdiet risus. Phasellus tempus leo metus, ut mattis augue consequat non. 
 
+![amazing image](amazing.gif) 
+
 ***
 
 [audio|chirping-birds.wav]
@@ -51,7 +50,7 @@ Consectetur adipiscing elit. Quisque at fermentum libero. Duis ac blandit leo. S
 
 **Phasellus tempus leo metus**
 Mattis augue consequat non. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Fusce posuere magna eget libero elementum suscipit. Suspendisse nec feugiat lacus.
-                            
+
         </mdv:MarkdownView>
     </ScrollView>
 

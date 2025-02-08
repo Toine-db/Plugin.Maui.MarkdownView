@@ -60,7 +60,7 @@ public class MarkdownView : ContentView
     public bool IgnoreSafeArea
     {
         get => (bool)GetValue(IgnoreSafeAreaProperty);
-        private set => SetValue(IgnoreSafeAreaProperty, value);
+        set => SetValue(IgnoreSafeAreaProperty, value);
     }
 
     public static readonly BindableProperty ViewSupplierProperty =

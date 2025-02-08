@@ -30,7 +30,7 @@ Available on [microsoft.com > supported-platforms](https://learn.microsoft.com/e
 
 
 ### Proven system
-This system has been part of my private project for a long time and has proven to be a great way to easily scale-up apps with lots of different languages. As an example, the app in question has approx 2 million downloads and is available in 11 languages ​​using different alphabets and writing directions.
+This system has been part of my private project for a long time and has proven to be a great way to easily scale-up apps, like working with views that contain lots of static content or when supporting many different languages. As an example, the app in question has approx 2 million downloads and is available in 11 languages ​​using different alphabets and writing directions.
 
 With the rise of MAUI I thought this was a great time to make it public, because it's just too good to keep it to myself :grin:. And with the help of the community, we can make it even better.
 
@@ -67,7 +67,7 @@ Check out the Pages in the [Plugin.Maui.MarkdownView.Sample](https://github.com/
 
 Two steps to quickly get started with MarkdownView and get the most of its power right away:
   1. copy-paste the styles `MarkdownStyles.xaml` into your project
-  2. copy-paste the complete `<mdv:MarkdownView>` from the MarkdownInXamlPage where ever you want to use the control
+  2. copy-paste the complete `<mdv:MarkdownView>` from the MarkdownInXamlPage to where ever you want to use the control
 
 Now you can change the Markdown content in the `<mdv:MarkdownView>` and start styling it with the `MarkdownStyles.xaml` file or customize your own IMauiViewSupplier.
 
@@ -126,9 +126,11 @@ When using MauiFormattedTextViewSupplier as IViewSupplier, the supplier uses thi
 
 ## Customizability
 
-This plugin has been created with only structured object-oriented code, without any hidden reflection or injection mechanisms.
+This plugin has been created with only structured object-oriented code, no hidden reflection or injection mechanisms.
 
-For customizability, against the principles of some developers, almost all methods are virtual and ready to be overridden. Use this power wisely, you may break this system but the freedom it gives to make it your own is endless :smirk:.
+Almost all methods are virtual and ready to be overridden, sorry to the devs who are principally against this. 
+
+Use this power wisely, customize it as you wish, you may break this system but the freedom it gives you to make it your own is endless :smirk:.
 
 ### Use UI Hot-Reload on multiple platforms simultaneously
 For UI Development purposes a dedicated dummy sample iOS project has been created to be used in a ‘multi startup projects’ scenario. This can be used to simultaneously use UI Hot-Reload on multiple platforms at the same time, that is iOS + a second desired platform.

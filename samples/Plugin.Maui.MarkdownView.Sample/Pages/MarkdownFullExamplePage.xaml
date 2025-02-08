@@ -7,71 +7,23 @@
              x:Class="Plugin.Maui.MarkdownView.Sample.Pages.MarkdownFullExamplePage"
              Style="{StaticResource MarkdownShellStyle}"
              xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+             xmlns:styles="clr-namespace:Plugin.Maui.MarkdownView.Sample.Resources.Styles"
              ios:Page.UseSafeArea="True"
              Title="Full Example">
 
     <ScrollView>
         <!-- xml:space > workaround to keep line-breaks and spacing during HotReload -->
-        <mdv:MarkdownView x:Name="MarkdownView"
-                          IgnoreSafeArea="True"
-                          Style="{StaticResource ExampleMarkdownViewStyle}"
-                          InnerStackLayoutStyle="{StaticResource ExampleMarkdownViewInnerLayoutStyle}"
-                          xml:space="preserve">
+        <mdv:MarkdownView IgnoreSafeArea="True" xml:space="preserve" Style="{StaticResource ExampleMarkdownViewStyle}" InnerStackLayoutStyle="{StaticResource ExampleMarkdownViewInnerLayoutStyle}" >
             <mdv:MarkdownView.ViewSupplier>
                 <customViewSuppliers:MyViewSupplier x:Name="MyViewSupplier">
                     <customViewSuppliers:MyViewSupplier.ExtraStyles>
-                        <customViewSuppliers:SupplierExtraStyles 
-                            ButtonViewStyle="{StaticResource ExampleMarkdownIconButtonStyle}" 
-                            MenuItemViewStyle="{StaticResource ExampleMarkdownMenuItemViewStyle}" 
-                            MenuItemLabelStyle="{StaticResource ExampleMarkdownMenuItemLabelStyle}"
-                            MenuItemSeparatorStyle="{StaticResource ExampleMarkdownMenuItemSeparatorStyle}"
-                            Header1LayoutViewStyle="{StaticResource ExampleMarkdownHeader1LayoutViewStyle}"
-                            Header2LayoutViewStyle="{StaticResource ExampleMarkdownHeader2LayoutViewStyle}"
-                            /> 
+                        <styles:MySupplierExtraStyles />
                     </customViewSuppliers:MyViewSupplier.ExtraStyles>
                     <mdvs:MauiFormattedTextViewSupplier.Styles>
-                        <mdvs:MauiBasicViewSupplierStyles
-                            LayoutViewStyle="{StaticResource ExampleMarkdownLayoutViewStyle}"
-                            TextViewStyle="{StaticResource ExampleMarkdownTextViewStyle}"
-                            ListTextViewStyle="{StaticResource ExampleMarkdownListTextViewStyle}"
-                            BlockquotesTextViewStyle="{StaticResource ExampleMarkdownBlockquotesTextViewStyle}"
-                            HeaderViewLevel1Style="{StaticResource ExampleMarkdownHeaderViewLevel1Style}"
-                            HeaderViewLevel2Style="{StaticResource ExampleMarkdownHeaderViewLevel2Style}"
-                            HeaderViewLevel3Style="{StaticResource ExampleMarkdownHeaderViewLevel3Style}"
-                            HeaderViewLevel4Style="{StaticResource ExampleMarkdownHeaderViewLevel4Style}"
-                            HeaderViewLevel5Style="{StaticResource ExampleMarkdownHeaderViewLevel5Style}"
-                            HeaderViewLevel6Style="{StaticResource ExampleMarkdownHeaderViewLevel6Style}"
-                            BlockquotesOuterViewStyle="{StaticResource ExampleMarkdownBlockquotesOuterViewStyle}"
-                            BlockquotesInnerViewStyle="{StaticResource ExampleMarkdownBlockquotesInnerViewStyle}"
-                            FencedCodeBlockLayoutStyle="{StaticResource ExampleMarkdownFencedCodeBlockLayoutStyle}"
-                            FencedCodeBlockLabelStyle="{StaticResource ExampleMarkdownFencedCodeBlockLabelStyle}"
-                            HtmlBlockLayoutStyle="{StaticResource ExampleMarkdownHtmlBlockLayoutStyle}"
-                            HtmlBlockLabelStyle="{StaticResource ExampleMarkdownHtmlBlockLabelStyle}"
-                            ImageLayoutViewStyle="{StaticResource ExampleMarkdownImageLayoutViewStyle}"
-                            ImageSubscriptionViewStyle="{StaticResource ExampleMarkdownImageSubscriptionViewStyle}"
-                            ImageViewStyle="{StaticResource ExampleMarkdownImageViewStyle}" 
-                            IndentedCodeBlockLabelStyle="{StaticResource ExampleMarkdownIndentedCodeBlockLabelStyle}"
-                            IndentedCodeBlockLayoutStyle="{StaticResource ExampleMarkdownIndentedCodeBlockLayoutStyle}"
-                            ListItemBulletViewLevel1Style="{StaticResource ExampleMarkdownListItemBulletViewLevel1Style}"
-                            ListItemBulletViewLevel2Style="{StaticResource ExampleMarkdownListItemBulletViewLevel2Style}"
-                            ListItemBulletViewLevel3Style="{StaticResource ExampleMarkdownListItemBulletViewLevel3Style}"
-                            ListItemBulletViewLevel4Style="{StaticResource ExampleMarkdownListItemBulletViewLevel4Style}"
-                            ListItemBulletViewLevel5Style="{StaticResource ExampleMarkdownListItemBulletViewLevel5Style}"
-                            ListItemBulletViewLevel6Style="{StaticResource ExampleMarkdownListItemBulletViewLevel6Style}"
-                            ListItemViewStyle="{StaticResource ExampleMarkdownListItemViewStyle}"
-                            ListViewStyle="{StaticResource ExampleMarkdownListViewStyle}"
-                            ThematicBreakStyle="{StaticResource ExampleMarkdownThematicBreakStyle}" />
+                        <styles:MyMauiBasicViewSupplierStyles />
                     </mdvs:MauiFormattedTextViewSupplier.Styles>
                     <mdvs:MauiFormattedTextViewSupplier.FormattedTextStyles>
-                        <mdvs:MauiFormattedTextViewSupplierStyles
-                            SpanCodeBackgroundLightColor="{StaticResource ExampleMarkdownSpanCodeBackgroundColorLight}"
-                            SpanCodeBackgroundDarkColor="{StaticResource ExampleMarkdownSpanCodeBackgroundColorDark}"
-                            SpanHyperlinkTextLightColor="{StaticResource ExampleMarkdownSpanHyperlinkTextColorLight}"
-                            SpanHyperlinkTextDarkColor="{StaticResource ExampleMarkdownSpanHyperlinkTextColorDark}"
-                            SpanTextViewStyle="{StaticResource ExampleMarkdownSpanTextViewStyle}"
-                            SpanListTextViewStyle="{StaticResource ExampleMarkdownSpanListTextViewStyle}"
-                            SpanBlockquotesTextViewStyle="{StaticResource ExampleMarkdownSpanBlockquotesTextViewStyle}" 
-                            LayoutForSplitTextViewStyle="{StaticResource ExampleMarkdownLayoutForSplitTextViewStyle}" />
+                        <styles:MyMauiFormattedTextViewSupplierStyles></styles:MyMauiFormattedTextViewSupplierStyles>
                     </mdvs:MauiFormattedTextViewSupplier.FormattedTextStyles>
                 </customViewSuppliers:MyViewSupplier>
             </mdv:MarkdownView.ViewSupplier>
@@ -79,8 +31,7 @@
             
 ***
 
-Mauris faucibus
-============
+# Mauris faucibus
 
 * Duis vitae efficitur quam. Nulla placerat tellus id ipsum aliquam, sit amet maximus quam tincidunt. Fusce vestibulum aliquet sem sit amet pellentesque. Maecenas porttitor pellentesque massa vitae blandit. Curabitur eget diam velit. Mauris in luctus dui, ut sollicitudin erat. Cras tristique nibh ut ipsum feugiat, sit amet aliquet metus hendrerit.
 * Praesent vulputate tristique ex in feugiat. Morbi a sodales est. Donec faucibus tellus at pellentesque suscipit. Vestibulum sed ligula nisi.
@@ -90,8 +41,8 @@ Mauris faucibus
 
 ***
 
-Praesent blandit ultricies turpis non?
----------------
+## Praesent blandit ultricies turpis non?
+
 [menu|start]
 [In facilisiss](/In_facilisis "&#xf02d;")
 [Praesent posuere](/Curabitur_eget "&#xf66f;")
@@ -102,8 +53,8 @@ Praesent blandit ultricies turpis non?
   
 ***
 
-Nam dapibus?
----------------
+### Nam dapibus?
+
 [menu|start]
 [Sed elementum](/Sed_elementum "&#xf6d3;")
 [Morbi eget](/Morbi_eget "&#xf6be;")
