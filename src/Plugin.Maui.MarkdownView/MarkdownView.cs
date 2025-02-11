@@ -1,5 +1,9 @@
+using System.Runtime.CompilerServices;
+
 using MarkdownParser;
+
 using Microsoft.Extensions.Logging;
+
 using Plugin.Maui.MarkdownView.Common;
 using Plugin.Maui.MarkdownView.ViewSuppliers;
 
@@ -8,22 +12,56 @@ namespace Plugin.Maui.MarkdownView;
 [ContentProperty(nameof(MarkdownText))]
 public class MarkdownView : ContentView
 {
-    private readonly ILogger<MarkdownView>? _logger;
-    private readonly VerticalStackLayout _layout;
-    private static readonly Semaphore LoadingSemaphore = new (1, 1);
-    private CancellationTokenSource? _loadingCts;
+    protected readonly ILogger<MarkdownView>? Logger;
+    protected readonly VerticalStackLayout Container;
+    protected CancellationTokenSource? LoadingCts;
 
     public MarkdownView()
     {
-        _layout = new VerticalStackLayout
+        Container = new VerticalStackLayout
         {
             IgnoreSafeArea = this.IgnoreSafeArea,
         };
-		Content = _layout;
-        
+        Content = Container;
+
         SyncIgnoreSafeAreaSettingToSupplier();
-        
-        _logger ??= this.GetLogger();
+
+        Logger ??= this.GetLogger();
+    }
+
+    protected override void OnPropertyChanging([CallerMemberName] string? propertyName = null)
+    {
+        base.OnPropertyChanging(propertyName);
+
+        if (propertyName == MarkdownTextProperty.PropertyName)
+        {
+            OnMarkdownTextChanging();
+        }
+    }
+
+    protected override void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        base.OnPropertyChanged(propertyName);
+
+        if (propertyName == MarkdownTextProperty.PropertyName)
+        {
+            OnMarkdownTextChanged();
+        }
+        else if (propertyName == InnerStackLayoutStyleProperty.PropertyName)
+        {
+            Container.Style = InnerStackLayoutStyle;
+        }
+        else if (propertyName == ViewSupplierProperty.PropertyName)
+        {
+            SyncIgnoreSafeAreaSettingToSupplier();
+            OnMarkdownTextChanging();
+            OnMarkdownTextChanged();
+        }
+        else if (propertyName == IgnoreSafeAreaProperty.PropertyName)
+        {
+            Container.IgnoreSafeArea = IgnoreSafeArea;
+            SyncIgnoreSafeAreaSettingToSupplier();
+        }
     }
 
     /// <summary>
@@ -37,7 +75,7 @@ public class MarkdownView : ContentView
     }
 
     public static readonly BindableProperty MarkdownTextProperty =
-        BindableProperty.Create(nameof(MarkdownText), typeof(string), typeof(MarkdownView), string.Empty, propertyChanged: MarkdownTextPropertyChanged);
+        BindableProperty.Create(nameof(MarkdownText), typeof(string), typeof(MarkdownView));
 
     public string MarkdownText
     {
@@ -55,7 +93,7 @@ public class MarkdownView : ContentView
     }
 
     public static readonly BindableProperty IgnoreSafeAreaProperty =
-        BindableProperty.Create(nameof(IgnoreSafeArea), typeof(bool), typeof(MarkdownView), false, propertyChanged: OnIgnoreSafeAreaChanged);
+        BindableProperty.Create(nameof(IgnoreSafeArea), typeof(bool), typeof(MarkdownView));
 
     public bool IgnoreSafeArea
     {
@@ -64,7 +102,7 @@ public class MarkdownView : ContentView
     }
 
     public static readonly BindableProperty ViewSupplierProperty =
-        BindableProperty.Create(nameof(ViewSupplier), typeof(IMauiViewSupplier), typeof(MarkdownView), null, BindingMode.TwoWay, propertyChanged: OnViewSupplierChanged);
+        BindableProperty.Create(nameof(ViewSupplier), typeof(IMauiViewSupplier), typeof(MarkdownView), null, BindingMode.TwoWay);
 
     public IMauiViewSupplier? ViewSupplier
     {
@@ -73,7 +111,7 @@ public class MarkdownView : ContentView
     }
 
     public static readonly BindableProperty InnerStackLayoutStyleProperty =
-        BindableProperty.Create(nameof(InnerStackLayoutStyle), typeof(Style), typeof(MarkdownView), default(Style), propertyChanged: InnerStackLayoutStyleChanged);
+        BindableProperty.Create(nameof(InnerStackLayoutStyle), typeof(Style), typeof(MarkdownView));
 
     public Style InnerStackLayoutStyle
     {
@@ -83,130 +121,92 @@ public class MarkdownView : ContentView
 
     public IView[] GetRootChildren()
     {
-        var rootChildren = _layout.Children.ToArray();
-        return rootChildren;
+        return Container.Children.ToArray();
     }
 
-    private static void InnerStackLayoutStyleChanged(BindableObject bindable, object oldvalue, object newvalue)
+    protected virtual void SyncIgnoreSafeAreaSettingToSupplier()
     {
-        if (bindable is MarkdownView markdownView)
-        {
-            markdownView._layout.Style = (Style)newvalue;
-        }
-    }
-
-    private static void MarkdownTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
-    {
-        if (bindable is MarkdownView markdownView)
-        {
-            markdownView.InvalidateMarkdownAsync();
-        }
-    }
-
-    private static void OnViewSupplierChanged(BindableObject bindable, object oldvalue, object newvalue)
-    {
-        if (bindable is MarkdownView markdownView)
-        {
-            markdownView.SyncIgnoreSafeAreaSettingToSupplier();
-
-            if (!string.IsNullOrWhiteSpace(markdownView.MarkdownText))
-            {
-                markdownView.InvalidateMarkdownAsync();
-            }
-        }
-    }
-
-    private static void OnIgnoreSafeAreaChanged(BindableObject bindable, object oldvalue, object newvalue)
-    {
-        if (bindable is MarkdownView markdownView)
-        {
-            markdownView._layout.IgnoreSafeArea = (bool)newvalue;
-            markdownView.SyncIgnoreSafeAreaSettingToSupplier();
-        }
-    }
-
-    protected void SyncIgnoreSafeAreaSettingToSupplier()
-    {
-        if (ViewSupplier != null)
+        if (ViewSupplier is not null)
         {
             ViewSupplier.IgnoreSafeArea = IgnoreSafeArea;
         }
     }
 
-    /// <summary>
-    /// Invalidate current displayed views generated from Markdown,
-    /// starting new view creation cycle by forcing one cycle at a time, restarting each time markdown is invalidated
-    /// </summary>
-    private async void InvalidateMarkdownAsync()
+    protected virtual void OnMarkdownTextChanging()
     {
-        if (_loadingCts != null)
+        try
         {
-            _loadingCts?.Cancel();
-            return;
+            LoadingCts?.Cancel();
+            LoadingCts?.Dispose();
+            LoadingCts = null;
         }
+        catch { }
 
-        LoadingSemaphore.WaitOne();
+        Container.Clear();
+    }
 
-        _loadingCts = new CancellationTokenSource();
-        var isCanceled = false;
+    protected virtual void OnMarkdownTextChanged()
+    {
+        if (string.IsNullOrEmpty(MarkdownText)) return;
+
+        LoadingCts = new();
+
+        var token = LoadingCts.Token;
 
         try
         {
-            await DisplayViewsFromMarkdownAsync(MarkdownText, _loadingCts.Token).ConfigureAwait(false);
+            IsLoadingMarkdown = true;
+
+            Render(MarkdownText, token);
         }
         catch (OperationCanceledException)
         {
-            isCanceled = true;
+
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, $"An error occured during parsing of markdown text");
         }
         finally
         {
-            _loadingCts?.Dispose();
-            _loadingCts = null;
-
-            LoadingSemaphore.Release();
-        }
-
-        if (isCanceled)
-        {
-            InvalidateMarkdownAsync();
+            IsLoadingMarkdown = false;
         }
     }
 
-    protected async Task DisplayViewsFromMarkdownAsync(string markdownText, CancellationToken loadingToken)
+    protected virtual
+#if DEBUG
+        async
+#endif
+        void Render(string text, CancellationToken token = default)
     {
-        if (string.IsNullOrWhiteSpace(MarkdownText))
-        {
-            await Dispatcher.DispatchAsync(_layout.Clear);
-            IsLoadingMarkdown = false;
+        var uiComponentSupplier = ViewSupplier ?? new MauiBasicViewSupplier();
 
-            return;
-        }
+        MarkdownParser<View> markdownParser = new(uiComponentSupplier);
 
-        IsLoadingMarkdown = true;
-
-        var uiComponentSupplier = ViewSupplier != null
-            ? ViewSupplier 
-            : new MauiBasicViewSupplier();
-
-        var markdownParser = new MarkdownParser<View>(uiComponentSupplier);
-
+#if DEBUG
+        // only for hot reload purpose
         await Dispatcher.DispatchAsync(() =>
         {
-            var views = markdownParser.Parse(markdownText);
-            loadingToken.ThrowIfCancellationRequested();
+#endif
+            if (token.IsCancellationRequested) return;
 
-            _layout.Clear();
+            var views = markdownParser.Parse(text);
+
+            if (token.IsCancellationRequested) return;
+
             foreach (var view in views)
             {
-                loadingToken.ThrowIfCancellationRequested();
-                _layout.Add(view);
+                if (token.IsCancellationRequested) return;
+
+                Container.Add(view);
             }
 
-            _logger?.Log(LogLevel.Trace, "Markdown used > {markdownText}", markdownText);
-            _logger?.Log(LogLevel.Information, "{viewCount} top-level views created", views.Count);
+            uiComponentSupplier.Clear();
+
+            Logger?.Log(LogLevel.Trace, "Markdown used > {markdownText}", text);
+            Logger?.Log(LogLevel.Information, "{viewCount} top-level views created", views.Count);
+#if DEBUG
         });
-
-        IsLoadingMarkdown = false;
+#endif
     }
-
 }

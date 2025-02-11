@@ -1,4 +1,5 @@
 ﻿using MarkdownParser.Models;
+
 using Plugin.Maui.MarkdownView.Common;
 using Plugin.Maui.MarkdownView.Controls;
 
@@ -11,6 +12,8 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
     public string? BasePathForRelativeUrlConversion { get; set; }
     public string[]? PrefixesToIgnoreForRelativeUrlConversion { get; set; }
 
+    protected Dictionary<string, List<string>> Headings = [];
+
     public IEnumerable<MarkdownReferenceDefinition>? PublishedMarkdownReferenceDefinitions { get; private set; }
 
     public bool IgnoreSafeArea { get; set; }
@@ -22,8 +25,7 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
             return false;
         }
 
-        var isKnown = PublishedMarkdownReferenceDefinitions?.Any(x => x.PlaceholderId == placeholderId) ?? false;
-        return isKnown;
+        return PublishedMarkdownReferenceDefinitions?.Any(x => x.PlaceholderId == placeholderId) is true;
     }
 
     public virtual void OnReferenceDefinitionsPublished(IEnumerable<MarkdownReferenceDefinition> markdownReferenceDefinitions)
@@ -31,7 +33,7 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
         PublishedMarkdownReferenceDefinitions = markdownReferenceDefinitions;
     }
 
-    public virtual View? CreateTextView(TextBlock textBlock)
+    public virtual View CreateTextView(TextBlock textBlock)
     {
         var content = textBlock.ExtractLiteralContent(Environment.NewLine);
         var textViewStyle = GetTextBlockStyleFor(textBlock);
@@ -47,7 +49,7 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
 
     public virtual View? CreateBlockquotesView(View? childView)
     {
-        if (childView == null)
+        if (childView is null)
         {
             return null;
         }
@@ -84,8 +86,19 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
             _ => null
         };
 
-        var headingId = content.Replace(" ", "-")
-                            .RemoveSpecialCharactersExcept(['-']);
+        var headingId = "#" + string.Join("-", content.Split(Array.Empty<char>(), StringSplitOptions.RemoveEmptyEntries))
+            .RemoveSpecialCharactersExcept('-')
+            .ToLower();
+
+        if (Headings.TryGetValue(headingId, out var list))
+        {
+            headingId = $"{headingId}-{list.Count}";
+            list.Add(headingId);
+        }
+        else
+        {
+            Headings[headingId] = [headingId];
+        }
 
         var header = new HeaderLabel
         {
@@ -106,32 +119,19 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
 
         url = ConvertToAbsoluteUrlIfPossible(url);
 
-        var stackLayout = new VerticalStackLayout
+        ImageSource? source = null;
+        if (url.TryCreateUri(out var uri))
         {
-            Style = Styles?.ImageLayoutViewStyle,
-            IgnoreSafeArea = IgnoreSafeArea
-        };
-
-        var imageView = new Image
-        {
-            Style = Styles?.ImageViewStyle
-        };
-
-        if (url.HasHttp())
-        {
-            try
-            {
-                var uri = new Uri(url);
-                imageView.Source = ImageSource.FromUri(uri);
-            }
-            catch
-            {
-                // fallback on default ImageSource
-            }
+            source = ImageSource.FromUri(uri);
         }
 
-        imageView.Source ??= ImageSource.FromFile(url);
-        stackLayout.Add(imageView);
+        source ??= ImageSource.FromFile(url);
+
+        View view = new Image
+        {
+            Style = Styles?.ImageViewStyle,
+            Source = source
+        };
 
         if (!string.IsNullOrWhiteSpace(subscription))
         {
@@ -140,15 +140,22 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
                 Style = Styles?.ImageSubscriptionViewStyle,
                 Text = subscription
             };
+            var stackLayout = new VerticalStackLayout
+            {
+                Style = Styles?.ImageLayoutViewStyle,
+                IgnoreSafeArea = IgnoreSafeArea
+            };
+            stackLayout.Add(view);
             stackLayout.Add(subscriptionLabel);
+            view = stackLayout;
         }
 
-        return stackLayout;
+        return view;
     }
 
     public virtual View? CreateListItemView(View? childView, bool isOrderedList, int sequenceNumber, int listLevel)
     {
-        if (childView == null)
+        if (childView is null)
         {
             return null;
         }
@@ -176,8 +183,7 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
 
     public virtual View? CreateListView(List<View?> items)
     {
-        if (items == null
-            || !items.Any())
+        if (items?.Count is null or 0)
         {
             return null;
         }
@@ -190,7 +196,10 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
 
         foreach (var view in items)
         {
-            stackLayout.Children.Add(view);
+            if (view is not null)
+            {
+                stackLayout.Children.Add(view);
+            }
         }
 
         return stackLayout;
@@ -253,7 +262,7 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
 
     public virtual View? CreateStackLayoutView(List<View?> childViews)
     {
-        if (childViews == null)
+        if (childViews?.Count is null or 0)
         {
             return null;
         }
@@ -266,7 +275,10 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
 
         foreach (var view in childViews)
         {
-            stackLayout.Children.Add(view);
+            if (view is not null)
+            {
+                stackLayout.Children.Add(view);
+            }
         }
 
         return stackLayout;
@@ -283,6 +295,7 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
     public virtual void Clear()
     {
         PublishedMarkdownReferenceDefinitions = [];
+        Headings.Clear();
     }
 
     protected virtual View? CreateListItemBullet(bool isOrderedList, int sequenceNumber, int listLevel)
@@ -339,23 +352,27 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
             return url;
         }
 
-        if (PrefixesToIgnoreForRelativeUrlConversion == null
-            || PrefixesToIgnoreForRelativeUrlConversion.Any(prefix => url.StartsWith(prefix)))
+        if (PrefixesToIgnoreForRelativeUrlConversion?.Any(url.StartsWith) is not false)
         {
             return url;
         }
 
-        var isAbsolutePath = Uri.TryCreate(url, UriKind.Absolute, out _);
-        if (isAbsolutePath)
+        if (Uri.IsWellFormedUriString(url, UriKind.Absolute))
         {
             return url;
         }
 
-        var rootPath = BasePathForRelativeUrlConversion.TrimEnd('/').TrimEnd('\\');
-        var subPath = url.TrimStart('/').TrimStart('\\');
-        var absolutePath = $"{rootPath}/{subPath}";
+        // Try to create absolute URI using proper URI combination
+        if (Uri.TryCreate(BasePathForRelativeUrlConversion, UriKind.Absolute, out Uri? baseUri)
+            && Uri.TryCreate(baseUri, url, out Uri? absoluteUri))
+        {
+            return absoluteUri.AbsoluteUri;
+        }
 
-        return absolutePath;
+        // Fallback to path combination with normalized slashes
+        return string.Format("{0}/{1}",
+            BasePathForRelativeUrlConversion.TrimEnd('/', '\\'),
+            url.TrimStart('/', '\\'));
     }
 
     protected virtual Style? GetTextBlockStyleFor(TextBlock textBlock)

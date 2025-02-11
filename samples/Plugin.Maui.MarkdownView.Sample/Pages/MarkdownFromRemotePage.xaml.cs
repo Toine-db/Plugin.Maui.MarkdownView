@@ -8,8 +8,8 @@ public partial class MarkdownFromRemotePage : ContentPage
     private const string DefaultRemoteFile = "https://enbyin.com/resources/MarkdownExample.md";
 
     public MarkdownFromRemotePage()
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
     }
 
     protected override void OnAppearing()
@@ -34,7 +34,7 @@ public partial class MarkdownFromRemotePage : ContentPage
         await LoadMarkdownFromRemote();
         RefreshView.IsRefreshing = false;
     }
-    
+
     private async Task LoadMarkdownFromRemote()
     {
         try
