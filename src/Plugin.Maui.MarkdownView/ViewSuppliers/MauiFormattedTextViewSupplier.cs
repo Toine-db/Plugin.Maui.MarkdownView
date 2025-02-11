@@ -1,9 +1,11 @@
 ﻿using MarkdownParser.Models;
-using MarkdownParser.Models.Segments.Indicators;
 using MarkdownParser.Models.Segments;
+using MarkdownParser.Models.Segments.Indicators;
+
+using Microsoft.Extensions.Logging;
+
 using Plugin.Maui.MarkdownView.Common;
 using Plugin.Maui.MarkdownView.Controls;
-using Microsoft.Extensions.Logging;
 
 namespace Plugin.Maui.MarkdownView.ViewSuppliers;
 
@@ -18,10 +20,10 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
         var textViewStyle = GetTextBlockStyleFor(textBlock);
         var spanStyle = GetSpanStyleFor(textBlock);
 
-        var collectedRootViews = new List<View?>();
-        var textSpansCache = new List<Span>();
+        List<View?> collectedRootViews = [];
+        List<Span> textSpansCache = [];
 
-        var activeIndicators = new List<SegmentIndicator>();
+        List<SegmentIndicator> activeIndicators = [];
         LinkSegment? activeLinkSegment = null;
 
         foreach (var segment in textBlock.TextSegments)
@@ -35,7 +37,7 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
                 // Designated Placeholders cannot be placed inside a label
                 // because of this, we need to break current formatted span/label creation to inject the placeholder in between
                 var designatedPlaceholderView = CreateDesignatedPlaceholderView(placeholderSegment);
-                
+
                 // flush current Formatted spans if any
                 var view = TryCreateFormattedLabel(textSpansCache, textViewStyle);
                 collectedRootViews.Add(view);
@@ -95,9 +97,9 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
         return flattenedView;
     }
 
-    protected virtual Span CreateSpan(BaseSegment segment, 
-        List<SegmentIndicator> activeIndicators, 
-        LinkSegment? activeLinkSegment, 
+    protected virtual Span CreateSpan(BaseSegment segment,
+        List<SegmentIndicator> activeIndicators,
+        LinkSegment? activeLinkSegment,
         Style? spanStyle)
     {
         var literalContent = segment.ToString();
@@ -147,8 +149,8 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
                 Command = new Command<HyperlinkSpan>(OnHyperlinkTappedAsync)
             };
 
-            if (FormattedTextStyles?.SpanHyperlinkTextLightColor != null
-                && FormattedTextStyles?.SpanHyperlinkTextDarkColor != null)
+            if (FormattedTextStyles?.SpanHyperlinkTextLightColor is not null
+                && FormattedTextStyles?.SpanHyperlinkTextDarkColor is not null)
             {
                 span.SetAppThemeColor(Span.TextColorProperty,
                     FormattedTextStyles.SpanHyperlinkTextLightColor,
@@ -217,13 +219,13 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
             }
 
             var url = ConvertToAbsoluteUrlIfPossible(hyperlinkSpan.Url);
-            if (url.HasHttp())
+            if (url.TryCreateUri(out var uri))
             {
-                await Launcher.OpenAsync(url);
+                await Launcher.OpenAsync(uri!);
                 return;
             }
 
-            if (OnHyperlinkTappedFallback != null)
+            if (OnHyperlinkTappedFallback is not null)
             {
                 await OnHyperlinkTappedFallback(hyperlinkSpan);
                 return;
@@ -244,7 +246,7 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
         {
             return FormattedTextStyles?.SpanBlockquotesTextViewStyle;
         }
-        
+
         if (textBlock.AncestorsTree.Contains(BlockType.List))
         {
             return FormattedTextStyles?.SpanListTextViewStyle;
@@ -255,7 +257,7 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
 
     protected virtual View? TryCreateFormattedLabel(List<Span> textSpans, Style? style)
     {
-        if (!textSpans.Any())
+        if (textSpans.Count == 0)
         {
             return null;
         }
@@ -277,14 +279,14 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
 
     protected virtual View? FlattenToSingleView(List<View?> views)
     {
-        var validViews = views.Where(x => x != null).ToList();
+        var validViews = views.OfType<View>().ToList();
 
         switch (validViews.Count)
         {
             case 0:
                 return null;
             case 1:
-                return validViews.First();
+                return validViews[0];
             default:
                 var stackLayout = new VerticalStackLayout
                 {

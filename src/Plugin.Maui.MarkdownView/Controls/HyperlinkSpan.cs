@@ -30,8 +30,7 @@ public class HyperlinkSpan : Span
 
     private void OnHyperlinkTapped()
     {
-        if (Command != null
-            && Command.CanExecute(Url))
+        if (Command?.CanExecute(this) is true)
         {
             Command.Execute(this);
         }
