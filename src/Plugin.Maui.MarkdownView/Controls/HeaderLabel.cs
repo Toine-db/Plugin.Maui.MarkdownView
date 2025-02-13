@@ -2,5 +2,5 @@
 
 public class HeaderLabel : Label
 {
-    public string? HeadingId { get; set; }
+	public string? HeadingId { get; set; }
 }

@@ -4,33 +4,33 @@ namespace Plugin.Maui.MarkdownView.Sample;
 
 public partial class AppShell : Shell
 {
-    private bool _hasShownFlyoutMenu;
+	private bool _hasShownFlyoutMenu;
 
-    public AppShell()
-    {
-        InitializeComponent();
-        
-        Routing.RegisterRoute(nameof(MarkdownFullExampleDetailPage), typeof(MarkdownFullExampleDetailPage));
-    }
+	public AppShell()
+	{
+		InitializeComponent();
 
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
+		Routing.RegisterRoute(nameof(MarkdownFullExampleDetailPage), typeof(MarkdownFullExampleDetailPage));
+	}
 
-        // prevent HotReload from showing flyout menu again and again and again...
-        if (!_hasShownFlyoutMenu)
-        {
-            ShowFlyoutMenu();
-        }
-    }
+	protected override void OnAppearing()
+	{
+		base.OnAppearing();
 
-    private void ShowFlyoutMenu()
-    {
-        _hasShownFlyoutMenu = true;
-        Dispatcher.Dispatch(async () =>
-        {
-            await Task.Delay(1000);
-            FlyoutIsPresented = true;
-        });
-    }
+		// prevent HotReload from showing flyout menu again and again and again...
+		if (!_hasShownFlyoutMenu)
+		{
+			ShowFlyoutMenu();
+		}
+	}
+
+	private void ShowFlyoutMenu()
+	{
+		_hasShownFlyoutMenu = true;
+		Dispatcher.Dispatch(async () =>
+		{
+			await Task.Delay(1000);
+			FlyoutIsPresented = true;
+		});
+	}
 }

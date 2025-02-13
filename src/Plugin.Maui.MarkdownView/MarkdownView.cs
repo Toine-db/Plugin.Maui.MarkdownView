@@ -8,205 +8,307 @@ namespace Plugin.Maui.MarkdownView;
 [ContentProperty(nameof(MarkdownText))]
 public class MarkdownView : ContentView
 {
-    private readonly ILogger<MarkdownView>? _logger;
-    private readonly VerticalStackLayout _layout;
-    private static readonly Semaphore LoadingSemaphore = new (1, 1);
-    private CancellationTokenSource? _loadingCts;
+	private readonly ILogger<MarkdownView>? _logger;
+	private static readonly SemaphoreSlim LoadingSemaphore = new(1, 1);
+	private CancellationTokenSource? _loadingCts;
 
-    public MarkdownView()
-    {
-        _layout = new VerticalStackLayout
-        {
-            IgnoreSafeArea = this.IgnoreSafeArea,
-        };
-		Content = _layout;
-        
-        SyncIgnoreSafeAreaSettingToSupplier();
-        
-        _logger ??= this.GetLogger();
-    }
+	private bool _isWaitingRenderViewsAsynchronous;
 
-    /// <summary>
-    /// Workaround: space (lowercase) required for using xml:space="preserve" in XAML to keep linebreaks and spaces during HotReload
-    /// </summary>
-    public static readonly BindableProperty SpaceProperty = BindableProperty.Create(nameof(space), typeof(string), typeof(MarkdownView), "preserve");
-    public string space
-    {
-        get => (string)GetValue(SpaceProperty);
-        set => SetValue(SpaceProperty, value);
-    }
+	private readonly VerticalStackLayout _container;
 
-    public static readonly BindableProperty MarkdownTextProperty =
-        BindableProperty.Create(nameof(MarkdownText), typeof(string), typeof(MarkdownView), string.Empty, propertyChanged: MarkdownTextPropertyChanged);
+	public MarkdownView()
+	{
+		_container = new VerticalStackLayout
+		{
+			IgnoreSafeArea = this.IgnoreSafeArea,
+		};
+		Content = _container;
 
-    public string MarkdownText
-    {
-        get => (string)GetValue(MarkdownTextProperty);
-        set => SetValue(MarkdownTextProperty, value);
-    }
+		SyncIgnoreSafeAreaSettingToSupplier();
 
-    public static readonly BindableProperty IsLoadingMarkdownProperty =
-        BindableProperty.Create(nameof(IsLoadingMarkdown), typeof(bool), typeof(MarkdownView), false, BindingMode.OneWayToSource);
+		_logger ??= this.GetLogger();
+	}
 
-    public bool IsLoadingMarkdown
-    {
-        get => (bool)GetValue(IsLoadingMarkdownProperty);
-        private set => SetValue(IsLoadingMarkdownProperty, value);
-    }
+	public event EventHandler<MarkdownParseExceptionEventArgs> MarkdownParseExceptionThrown;
 
-    public static readonly BindableProperty IgnoreSafeAreaProperty =
-        BindableProperty.Create(nameof(IgnoreSafeArea), typeof(bool), typeof(MarkdownView), false, propertyChanged: OnIgnoreSafeAreaChanged);
+	/// <summary>
+	/// Workaround: space (lowercase) required for using xml:space="preserve" in XAML to keep linebreaks and spaces during HotReload
+	/// </summary>
+	public static readonly BindableProperty SpaceProperty = BindableProperty.Create(nameof(space), typeof(string), typeof(MarkdownView), "preserve");
+	public string space
+	{
+		get => (string)GetValue(SpaceProperty);
+		set => SetValue(SpaceProperty, value);
+	}
 
-    public bool IgnoreSafeArea
-    {
-        get => (bool)GetValue(IgnoreSafeAreaProperty);
-        set => SetValue(IgnoreSafeAreaProperty, value);
-    }
+	public static readonly BindableProperty MarkdownTextProperty =
+		BindableProperty.Create(nameof(MarkdownText), typeof(string), typeof(MarkdownView), string.Empty, propertyChanged: MarkdownTextPropertyChanged);
 
-    public static readonly BindableProperty ViewSupplierProperty =
-        BindableProperty.Create(nameof(ViewSupplier), typeof(IMauiViewSupplier), typeof(MarkdownView), null, BindingMode.TwoWay, propertyChanged: OnViewSupplierChanged);
+	public string MarkdownText
+	{
+		get => (string)GetValue(MarkdownTextProperty);
+		set => SetValue(MarkdownTextProperty, value);
+	}
 
-    public IMauiViewSupplier? ViewSupplier
-    {
-        get => (IMauiViewSupplier?)GetValue(ViewSupplierProperty);
-        set => SetValue(ViewSupplierProperty, value);
-    }
+	public static readonly BindableProperty IsLoadingMarkdownProperty =
+		BindableProperty.Create(nameof(IsLoadingMarkdown), typeof(bool), typeof(MarkdownView), false, BindingMode.OneWayToSource);
 
-    public static readonly BindableProperty InnerStackLayoutStyleProperty =
-        BindableProperty.Create(nameof(InnerStackLayoutStyle), typeof(Style), typeof(MarkdownView), default(Style), propertyChanged: InnerStackLayoutStyleChanged);
+	public bool IsLoadingMarkdown
+	{
+		get => (bool)GetValue(IsLoadingMarkdownProperty);
+		private set => SetValue(IsLoadingMarkdownProperty, value);
+	}
 
-    public Style InnerStackLayoutStyle
-    {
-        get => (Style)GetValue(InnerStackLayoutStyleProperty);
-        set => SetValue(InnerStackLayoutStyleProperty, value);
-    }
+	public static readonly BindableProperty RenderSynchronouslyProperty =
+		BindableProperty.Create(nameof(RenderSynchronously), typeof(bool), typeof(MarkdownView), false);
 
-    public IView[] GetRootChildren()
-    {
-        var rootChildren = _layout.Children.ToArray();
-        return rootChildren;
-    }
+	public bool RenderSynchronously
+	{
+		get => (bool)GetValue(RenderSynchronouslyProperty);
+		set => SetValue(RenderSynchronouslyProperty, value);
+	}
 
-    private static void InnerStackLayoutStyleChanged(BindableObject bindable, object oldvalue, object newvalue)
-    {
-        if (bindable is MarkdownView markdownView)
-        {
-            markdownView._layout.Style = (Style)newvalue;
-        }
-    }
+	public static readonly BindableProperty MaskParseExceptionsProperty =
+		BindableProperty.Create(nameof(MaskParseExceptions), typeof(bool), typeof(MarkdownView), true);
 
-    private static void MarkdownTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
-    {
-        if (bindable is MarkdownView markdownView)
-        {
-            markdownView.InvalidateMarkdownAsync();
-        }
-    }
+	public bool MaskParseExceptions
+	{
+		get => (bool)GetValue(MaskParseExceptionsProperty);
+		set => SetValue(MaskParseExceptionsProperty, value);
+	}
 
-    private static void OnViewSupplierChanged(BindableObject bindable, object oldvalue, object newvalue)
-    {
-        if (bindable is MarkdownView markdownView)
-        {
-            markdownView.SyncIgnoreSafeAreaSettingToSupplier();
+	public static readonly BindableProperty IgnoreSafeAreaProperty =
+		BindableProperty.Create(nameof(IgnoreSafeArea), typeof(bool), typeof(MarkdownView), false, propertyChanged: OnIgnoreSafeAreaChanged);
 
-            if (!string.IsNullOrWhiteSpace(markdownView.MarkdownText))
-            {
-                markdownView.InvalidateMarkdownAsync();
-            }
-        }
-    }
+	public bool IgnoreSafeArea
+	{
+		get => (bool)GetValue(IgnoreSafeAreaProperty);
+		set => SetValue(IgnoreSafeAreaProperty, value);
+	}
 
-    private static void OnIgnoreSafeAreaChanged(BindableObject bindable, object oldvalue, object newvalue)
-    {
-        if (bindable is MarkdownView markdownView)
-        {
-            markdownView._layout.IgnoreSafeArea = (bool)newvalue;
-            markdownView.SyncIgnoreSafeAreaSettingToSupplier();
-        }
-    }
+	public static readonly BindableProperty ViewSupplierProperty =
+		BindableProperty.Create(nameof(ViewSupplier), typeof(IMauiViewSupplier), typeof(MarkdownView), null, BindingMode.TwoWay, propertyChanged: OnViewSupplierChanged);
 
-    protected void SyncIgnoreSafeAreaSettingToSupplier()
-    {
-        if (ViewSupplier != null)
-        {
-            ViewSupplier.IgnoreSafeArea = IgnoreSafeArea;
-        }
-    }
+	public IMauiViewSupplier? ViewSupplier
+	{
+		get => (IMauiViewSupplier?)GetValue(ViewSupplierProperty);
+		set => SetValue(ViewSupplierProperty, value);
+	}
 
-    /// <summary>
-    /// Invalidate current displayed views generated from Markdown,
-    /// starting new view creation cycle by forcing one cycle at a time, restarting each time markdown is invalidated
-    /// </summary>
-    private async void InvalidateMarkdownAsync()
-    {
-        if (_loadingCts != null)
-        {
-            _loadingCts?.Cancel();
-            return;
-        }
+	public static readonly BindableProperty InnerStackLayoutStyleProperty =
+		BindableProperty.Create(nameof(InnerStackLayoutStyle), typeof(Style), typeof(MarkdownView), default(Style), propertyChanged: InnerStackLayoutStyleChanged);
 
-        LoadingSemaphore.WaitOne();
+	public Style InnerStackLayoutStyle
+	{
+		get => (Style)GetValue(InnerStackLayoutStyleProperty);
+		set => SetValue(InnerStackLayoutStyleProperty, value);
+	}
 
-        _loadingCts = new CancellationTokenSource();
-        var isCanceled = false;
+	public IView[] GetRootChildren()
+	{
+		var rootChildren = _container.Children.ToArray();
+		return rootChildren;
+	}
 
-        try
-        {
-            await DisplayViewsFromMarkdownAsync(MarkdownText, _loadingCts.Token).ConfigureAwait(false);
-        }
-        catch (OperationCanceledException)
-        {
-            isCanceled = true;
-        }
-        finally
-        {
-            _loadingCts?.Dispose();
-            _loadingCts = null;
+	private static void InnerStackLayoutStyleChanged(BindableObject bindable, object oldvalue, object newvalue)
+	{
+		if (bindable is MarkdownView markdownView)
+		{
+			markdownView._container.Style = (Style)newvalue;
+		}
+	}
 
-            LoadingSemaphore.Release();
-        }
+	private static void MarkdownTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
+	{
+		if (bindable is MarkdownView markdownView)
+		{
+			markdownView.RefreshMarkdown();
+		}
+	}
 
-        if (isCanceled)
-        {
-            InvalidateMarkdownAsync();
-        }
-    }
+	private static void OnViewSupplierChanged(BindableObject bindable, object oldvalue, object newvalue)
+	{
+		if (bindable is MarkdownView markdownView)
+		{
+			markdownView.SyncIgnoreSafeAreaSettingToSupplier();
 
-    protected async Task DisplayViewsFromMarkdownAsync(string markdownText, CancellationToken loadingToken)
-    {
-        if (string.IsNullOrWhiteSpace(MarkdownText))
-        {
-            await Dispatcher.DispatchAsync(_layout.Clear);
-            IsLoadingMarkdown = false;
+			if (!string.IsNullOrWhiteSpace(markdownView.MarkdownText))
+			{
+				markdownView.RefreshMarkdown();
+			}
+		}
+	}
 
-            return;
-        }
+	private static void OnIgnoreSafeAreaChanged(BindableObject bindable, object oldvalue, object newvalue)
+	{
+		if (bindable is MarkdownView markdownView)
+		{
+			markdownView._container.IgnoreSafeArea = (bool)newvalue;
+			markdownView.SyncIgnoreSafeAreaSettingToSupplier();
+		}
+	}
 
-        IsLoadingMarkdown = true;
+	protected void SyncIgnoreSafeAreaSettingToSupplier()
+	{
+		if (ViewSupplier != null)
+		{
+			ViewSupplier.IgnoreSafeArea = IgnoreSafeArea;
+		}
+	}
 
-        var uiComponentSupplier = ViewSupplier != null
-            ? ViewSupplier 
-            : new MauiBasicViewSupplier();
+	public void RefreshMarkdown()
+	{
+		if (RenderSynchronously)
+		{
+			_logger?.Log(LogLevel.Trace, "Refreshing Markdown synchronously");
+			RenderViewsFromMarkdown(MarkdownText);
+		}
+		else
+		{
+			_logger?.Log(LogLevel.Trace, "Refreshing Markdown asynchronously");
+			RequestToRenderViewsFromMarkdownAsync();
+		}
+	}
 
-        var markdownParser = new MarkdownParser<View>(uiComponentSupplier);
+	//
+	// Synchronous Rendering
+	//
 
-        await Dispatcher.DispatchAsync(() =>
-        {
-            var views = markdownParser.Parse(markdownText);
-            loadingToken.ThrowIfCancellationRequested();
+	protected void RenderViewsFromMarkdown(string markdownText)
+	{
+		if (string.IsNullOrWhiteSpace(MarkdownText))
+		{
+			_container.Clear();
+			IsLoadingMarkdown = false;
 
-            _layout.Clear();
-            foreach (var view in views)
-            {
-                loadingToken.ThrowIfCancellationRequested();
-                _layout.Add(view);
-            }
+			return;
+		}
 
-            _logger?.Log(LogLevel.Trace, "Markdown used > {markdownText}", markdownText);
-            _logger?.Log(LogLevel.Information, "{viewCount} top-level views created", views.Count);
-        });
+		IsLoadingMarkdown = true;
 
-        IsLoadingMarkdown = false;
-    }
+		var uiComponentSupplier = ViewSupplier != null
+			? ViewSupplier
+			: new MauiBasicViewSupplier();
 
+		try
+		{
+			var markdownParser = new MarkdownParser<View>(uiComponentSupplier);
+			ParseMarkdownAndAddToContainer(markdownParser, markdownText, null);
+		}
+		catch (Exception exception)
+		{
+			_logger?.Log(LogLevel.Error, "RenderViewsFromMarkdown exception: {exception}", exception);
+			MarkdownParseExceptionThrown?.Invoke(this, new MarkdownParseExceptionEventArgs(exception));
+
+			if (!MaskParseExceptions)
+			{
+				throw;
+			}
+		}
+
+		IsLoadingMarkdown = false;
+	}
+
+	protected void ParseMarkdownAndAddToContainer(
+		MarkdownParser<View> markdownParser, 
+		string markdownText, 
+		CancellationToken? loadingToken)
+	{
+		var views = markdownParser.Parse(markdownText);
+		loadingToken?.ThrowIfCancellationRequested();
+
+		_container.Clear();
+		foreach (var view in views)
+		{
+			loadingToken?.ThrowIfCancellationRequested();
+			_container.Add(view);
+		}
+
+		_logger?.Log(LogLevel.Trace, "Markdown used > {markdownText}", markdownText);
+		_logger?.Log(LogLevel.Information, "{viewCount} top-level views created", views.Count);
+	}
+
+	//
+	// Asynchronous Rendering
+	//
+
+	protected async void RequestToRenderViewsFromMarkdownAsync()
+	{
+		// Trigger new async start for view creation cycle by allowing one cycle at a time
+		// and with maximum 1 trigger/waiting request in queue
+
+		if (_isWaitingRenderViewsAsynchronous)
+		{
+			_logger?.Log(LogLevel.Trace, "RenderViewsFromMarkdownAsync is skipping request because another thread is already waiting");
+			return;
+		}
+		_isWaitingRenderViewsAsynchronous = true;
+
+		if (_loadingCts != null)
+		{
+			_loadingCts?.Cancel();
+			_loadingCts = null;
+		}
+
+		await LoadingSemaphore.WaitAsync();
+		_isWaitingRenderViewsAsynchronous = false;
+
+		var loadingCts = new CancellationTokenSource();
+		_loadingCts = loadingCts;
+
+		try
+		{
+			await RenderViewsFromMarkdownAsync(MarkdownText, loadingCts.Token).ConfigureAwait(false);
+		}
+		catch (OperationCanceledException)
+		{
+			_logger?.Log(LogLevel.Trace, "RenderViewsFromMarkdownAsync canceled");
+		}
+		catch (Exception exception)
+		{
+			_logger?.Log(LogLevel.Error, "RenderViewsFromMarkdownAsync exception: {exception}", exception);
+			MarkdownParseExceptionThrown?.Invoke(this, new MarkdownParseExceptionEventArgs(exception));
+
+			if (!MaskParseExceptions)
+			{
+				throw;
+			}
+		}
+		finally
+		{
+			loadingCts?.Dispose();
+			_loadingCts = null;
+
+			LoadingSemaphore.Release();
+		}
+	}
+
+	protected async Task RenderViewsFromMarkdownAsync(string markdownText, CancellationToken loadingToken)
+	{
+		if (string.IsNullOrWhiteSpace(MarkdownText))
+		{
+			await Dispatcher.DispatchAsync(_container.Clear);
+			IsLoadingMarkdown = false;
+
+			return;
+		}
+
+		IsLoadingMarkdown = true;
+
+		await Task.Run(async () =>
+		{
+			var uiComponentSupplier = ViewSupplier != null
+				? ViewSupplier
+				: new MauiBasicViewSupplier();
+
+			var markdownParser = new MarkdownParser<View>(uiComponentSupplier);
+
+			await Dispatcher.DispatchAsync(() =>
+			{
+				ParseMarkdownAndAddToContainer(markdownParser, markdownText, loadingToken);
+			});
+		}, loadingToken);
+
+		IsLoadingMarkdown = false;
+	}
 }

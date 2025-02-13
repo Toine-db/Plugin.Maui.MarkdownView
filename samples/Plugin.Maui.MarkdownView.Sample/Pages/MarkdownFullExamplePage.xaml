@@ -13,7 +13,11 @@
 
     <ScrollView>
         <!-- xml:space > workaround to keep line-breaks and spacing during HotReload -->
-        <mdv:MarkdownView IgnoreSafeArea="True" xml:space="preserve" Style="{StaticResource ExampleMarkdownViewStyle}" InnerStackLayoutStyle="{StaticResource ExampleMarkdownViewInnerLayoutStyle}" >
+        <mdv:MarkdownView IgnoreSafeArea="True" 
+                          xml:space="preserve" 
+                          RenderSynchronously="True"
+                          Style="{StaticResource ExampleMarkdownViewStyle}" 
+                          InnerStackLayoutStyle="{StaticResource ExampleMarkdownViewInnerLayoutStyle}" >
             <mdv:MarkdownView.ViewSupplier>
                 <customViewSuppliers:MyViewSupplier x:Name="MyViewSupplier">
                     <customViewSuppliers:MyViewSupplier.ExtraStyles>

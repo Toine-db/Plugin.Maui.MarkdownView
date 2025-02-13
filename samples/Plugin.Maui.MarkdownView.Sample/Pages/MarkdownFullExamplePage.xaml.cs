@@ -6,19 +6,19 @@ public partial class MarkdownFullExamplePage : ContentPage
 	{
 		InitializeComponent();
 
-        MyViewSupplier.OnMenuItemTapped = OnMenuItemTapped;
-    }
+		MyViewSupplier.OnMenuItemTapped = OnMenuItemTapped;
+	}
 
-    private async Task OnMenuItemTapped(string? url)
-    {
-        if (string.IsNullOrWhiteSpace(url))
-        {
-            return;
-        }
+	private async Task OnMenuItemTapped(string? url)
+	{
+		if (string.IsNullOrWhiteSpace(url))
+		{
+			return;
+		}
 
-        await Shell.Current.GoToAsync(nameof(MarkdownFullExampleDetailPage), true, new Dictionary<string, object>()
-        {
-            { "Url", url }
-        });
-    }
+		await Shell.Current.GoToAsync(nameof(MarkdownFullExampleDetailPage), true, new Dictionary<string, object>()
+		{
+			{ "Url", url }
+		});
+	}
 }
