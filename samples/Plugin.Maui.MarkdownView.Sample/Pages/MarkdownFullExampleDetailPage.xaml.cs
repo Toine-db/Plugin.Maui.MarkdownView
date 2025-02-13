@@ -6,15 +6,15 @@ public partial class MarkdownFullExampleDetailPage : ContentPage, IQueryAttribut
 	{
 		InitializeComponent();
 	}
-    
-    public void ApplyQueryAttributes(IDictionary<string, object> query)
-    {
-        if (!query.ContainsKey("Url"))
-        {
-            return;
-        }
+	
+	public void ApplyQueryAttributes(IDictionary<string, object> query)
+	{
+		if (!query.ContainsKey("Url"))
+		{
+			return;
+		}
 
-        var url = query["Url"] as string;
-        Title = $"Details {url.Replace("/", ": ").Replace("_", " ")}";
-    }
+		var url = query["Url"] as string;
+		Title = $"Details {url.Replace("/", ": ").Replace("_", " ")}";
+	}
 }
