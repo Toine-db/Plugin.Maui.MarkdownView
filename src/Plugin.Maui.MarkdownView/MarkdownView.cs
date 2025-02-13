@@ -29,6 +29,8 @@ public class MarkdownView : ContentView
 		_logger ??= this.GetLogger();
 	}
 
+	public event EventHandler<MarkdownParseExceptionEventArgs> MarkdownParseExceptionThrown;
+
 	/// <summary>
 	/// Workaround: space (lowercase) required for using xml:space="preserve" in XAML to keep linebreaks and spaces during HotReload
 	/// </summary>
@@ -196,6 +198,8 @@ public class MarkdownView : ContentView
 		catch (Exception exception)
 		{
 			_logger?.Log(LogLevel.Error, "RenderViewsFromMarkdown exception: {exception}", exception);
+			MarkdownParseExceptionThrown?.Invoke(this, new MarkdownParseExceptionEventArgs(exception));
+
 			if (!MaskParseExceptions)
 			{
 				throw;
@@ -263,6 +267,8 @@ public class MarkdownView : ContentView
 		catch (Exception exception)
 		{
 			_logger?.Log(LogLevel.Error, "RenderViewsFromMarkdownAsync exception: {exception}", exception);
+			MarkdownParseExceptionThrown?.Invoke(this, new MarkdownParseExceptionEventArgs(exception));
+
 			if (!MaskParseExceptions)
 			{
 				throw;
