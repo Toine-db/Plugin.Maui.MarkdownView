@@ -10,8 +10,9 @@ public class MarkdownView : ContentView
 {
 	private readonly ILogger<MarkdownView>? _logger;
 	private static readonly SemaphoreSlim LoadingSemaphore = new(1, 1);
-	private bool isWaitingToDisplayViewsFromMarkdown = false;
 	private CancellationTokenSource? _loadingCts;
+
+	private bool _isWaitingRenderViewsAsynchronous;
 
 	private readonly VerticalStackLayout _container;
 
@@ -54,6 +55,15 @@ public class MarkdownView : ContentView
 	{
 		get => (bool)GetValue(IsLoadingMarkdownProperty);
 		private set => SetValue(IsLoadingMarkdownProperty, value);
+	}
+
+	public static readonly BindableProperty RenderSynchronouslyProperty =
+		BindableProperty.Create(nameof(RenderSynchronously), typeof(bool), typeof(MarkdownView), false);
+
+	public bool RenderSynchronously
+	{
+		get => (bool)GetValue(RenderSynchronouslyProperty);
+		private set => SetValue(RenderSynchronouslyProperty, value);
 	}
 
 	public static readonly BindableProperty IgnoreSafeAreaProperty =
@@ -101,7 +111,7 @@ public class MarkdownView : ContentView
 	{
 		if (bindable is MarkdownView markdownView)
 		{
-			markdownView.InvalidateMarkdownAsync();
+			markdownView.RefreshMarkdown();
 		}
 	}
 
@@ -113,7 +123,7 @@ public class MarkdownView : ContentView
 
 			if (!string.IsNullOrWhiteSpace(markdownView.MarkdownText))
 			{
-				markdownView.InvalidateMarkdownAsync();
+				markdownView.RefreshMarkdown();
 			}
 		}
 	}
@@ -135,56 +145,29 @@ public class MarkdownView : ContentView
 		}
 	}
 
-	/// <summary>
-	/// Invalidate current displayed views generated from Markdown,
-	/// starting new view creation cycle by forcing one cycle at a time, restarting each time markdown is invalidated
-	/// with maximum 1 waiting request in line
-	/// </summary>
-	private async void InvalidateMarkdownAsync()
+	public void RefreshMarkdown()
 	{
-		if (isWaitingToDisplayViewsFromMarkdown)
+		if (RenderSynchronously)
 		{
-			return;
+			_logger?.Log(LogLevel.Trace, "Refreshing Markdown synchronously");
+			RenderViewsFromMarkdown(MarkdownText);
 		}
-		isWaitingToDisplayViewsFromMarkdown = true;
-
-		CancelDisplayViewsFromMarkdown();
-
-		await LoadingSemaphore.WaitAsync();
-		isWaitingToDisplayViewsFromMarkdown = false;
-
-		var loadingCts = new CancellationTokenSource();
-		_loadingCts = loadingCts;
-
-		var isCanceled = false;
-
-		try
+		else
 		{
-			await DisplayViewsFromMarkdownAsync(MarkdownText, loadingCts.Token).ConfigureAwait(false);
-		}
-		catch (OperationCanceledException)
-		{
-			isCanceled = true;
-		}
-		finally
-		{
-			_loadingCts?.Dispose();
-			_loadingCts = null;
-
-			LoadingSemaphore.Release();
-		}
-
-		if (isCanceled)
-		{
-			InvalidateMarkdownAsync();
+			_logger?.Log(LogLevel.Trace, "Refreshing Markdown asynchronously");
+			RequestToRenderViewsFromMarkdownAsync();
 		}
 	}
 
-	protected async Task DisplayViewsFromMarkdownAsync(string markdownText, CancellationToken loadingToken)
+	//
+	// Synchronous Rendering
+	//
+
+	protected void RenderViewsFromMarkdown(string markdownText)
 	{
 		if (string.IsNullOrWhiteSpace(MarkdownText))
 		{
-			await Dispatcher.DispatchAsync(_container.Clear);
+			_container.Clear();
 			IsLoadingMarkdown = false;
 
 			return;
@@ -197,35 +180,101 @@ public class MarkdownView : ContentView
 			: new MauiBasicViewSupplier();
 
 		var markdownParser = new MarkdownParser<View>(uiComponentSupplier);
-
-		await Dispatcher.DispatchAsync(() =>
-		{
-			var views = markdownParser.Parse(markdownText);
-			loadingToken.ThrowIfCancellationRequested();
-
-			_container.Clear();
-			foreach (var view in views)
-			{
-				loadingToken.ThrowIfCancellationRequested();
-				_container.Add(view);
-			}
-
-			_logger?.Log(LogLevel.Trace, "Markdown used > {markdownText}", markdownText);
-			_logger?.Log(LogLevel.Information, "{viewCount} top-level views created", views.Count);
-		});
+		ParseMarkdownAndAddToContainer(markdownParser, markdownText, null);
 
 		IsLoadingMarkdown = false;
 	}
 
-	private void CancelDisplayViewsFromMarkdown()
+	protected void ParseMarkdownAndAddToContainer(
+		MarkdownParser<View> markdownParser, 
+		string markdownText, 
+		CancellationToken? loadingToken)
 	{
-		if (_loadingCts == null)
+		var views = markdownParser.Parse(markdownText);
+		loadingToken?.ThrowIfCancellationRequested();
+
+		_container.Clear();
+		foreach (var view in views)
 		{
+			loadingToken?.ThrowIfCancellationRequested();
+			_container.Add(view);
+		}
+
+		_logger?.Log(LogLevel.Trace, "Markdown used > {markdownText}", markdownText);
+		_logger?.Log(LogLevel.Information, "{viewCount} top-level views created", views.Count);
+	}
+
+	//
+	// Asynchronous Rendering
+	//
+
+	protected async void RequestToRenderViewsFromMarkdownAsync()
+	{
+		// Trigger new async start for view creation cycle by allowing one cycle at a time
+		// and with maximum 1 trigger/waiting request in queue
+
+		if (_isWaitingRenderViewsAsynchronous)
+		{
+			_logger?.Log(LogLevel.Trace, "RenderViewsFromMarkdownAsync is skipping request because another thread is already waiting");
+			return;
+		}
+		_isWaitingRenderViewsAsynchronous = true;
+
+		if (_loadingCts != null)
+		{
+			_loadingCts?.Cancel();
+			_loadingCts = null;
+		}
+
+		await LoadingSemaphore.WaitAsync();
+		_isWaitingRenderViewsAsynchronous = false;
+
+		var loadingCts = new CancellationTokenSource();
+		_loadingCts = loadingCts;
+
+		try
+		{
+			await RenderViewsFromMarkdownAsync(MarkdownText, loadingCts.Token).ConfigureAwait(false);
+		}
+		catch (OperationCanceledException)
+		{
+			_logger?.Log(LogLevel.Trace, "RenderViewsFromMarkdownAsync canceled");
+		}
+		finally
+		{
+			loadingCts?.Dispose();
+			_loadingCts = null;
+
+			LoadingSemaphore.Release();
+		}
+	}
+
+	protected async Task RenderViewsFromMarkdownAsync(string markdownText, CancellationToken loadingToken)
+	{
+		if (string.IsNullOrWhiteSpace(MarkdownText))
+		{
+			await Dispatcher.DispatchAsync(_container.Clear);
+			IsLoadingMarkdown = false;
+
 			return;
 		}
 
-		_loadingCts?.Cancel();
-		_loadingCts?.Dispose();
-		_loadingCts = null;
+		IsLoadingMarkdown = true;
+
+		await Task.Run(async () =>
+		{
+			var uiComponentSupplier = ViewSupplier != null
+				? ViewSupplier
+				: new MauiBasicViewSupplier();
+
+			var markdownParser = new MarkdownParser<View>(uiComponentSupplier);
+
+			await Dispatcher.DispatchAsync(() =>
+			{
+				ParseMarkdownAndAddToContainer(markdownParser, markdownText, loadingToken);
+			});
+		}, loadingToken);
+
+		IsLoadingMarkdown = false;
 	}
 }
