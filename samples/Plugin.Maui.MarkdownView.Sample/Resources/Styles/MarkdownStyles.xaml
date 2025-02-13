@@ -146,7 +146,7 @@
         <Setter Property="Margin" Value="0" />
     </Style>
 
-    <Style TargetType="HorizontalStackLayout" x:Key="MarkdownListItemViewStyle">
+    <Style TargetType="Grid" x:Key="MarkdownListItemViewStyle">
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="0" /> 
     </Style>
