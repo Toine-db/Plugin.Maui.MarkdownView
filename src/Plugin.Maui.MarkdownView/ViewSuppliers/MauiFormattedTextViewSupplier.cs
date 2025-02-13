@@ -18,10 +18,10 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
 		var textViewStyle = GetTextBlockStyleFor(textBlock);
 		var spanStyle = GetSpanStyleFor(textBlock);
 
-		var collectedRootViews = new List<View?>();
-		var textSpansCache = new List<Span>();
+		List<View?> collectedRootViews = [];
+		List<Span> textSpansCache = [];
 
-		var activeIndicators = new List<SegmentIndicator>();
+		List<SegmentIndicator> activeIndicators = [];
 		LinkSegment? activeLinkSegment = null;
 
 		foreach (var segment in textBlock.TextSegments)
@@ -295,7 +295,10 @@ public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
 
 				foreach (var view in validViews)
 				{
-					stackLayout.Add(view);
+					if (view is not null)
+					{
+						stackLayout.Add(view);
+					}
 				}
 
 				return stackLayout;

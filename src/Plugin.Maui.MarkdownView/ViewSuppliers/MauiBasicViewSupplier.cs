@@ -191,7 +191,10 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
 
 		foreach (var view in items)
 		{
-			stackLayout.Children.Add(view);
+			if (view is not null)
+			{
+				stackLayout.Children.Add(view);
+			}
 		}
 
 		return stackLayout;
@@ -254,7 +257,8 @@ public class MauiBasicViewSupplier : IMauiViewSupplier
 
 	public virtual View? CreateStackLayoutView(List<View?> childViews)
 	{
-		if (childViews == null)
+		if (childViews == null
+		    || !childViews.Any())
 		{
 			return null;
 		}
