@@ -36,9 +36,9 @@ public static class HyperlinkHelper
 				{
 					var rootChildren = markdownView.GetRootChildren();
 					linkedHeader = rootChildren
-						.Where(x => x is HeaderLabel)
-						.Cast<HeaderLabel>()
-						.FirstOrDefault(x => x.HeadingId?.ToLower() == internalLink.ToLower());
+						.OfType<HeaderLabel>()
+						.Where(x => !string.IsNullOrWhiteSpace(x.HeadingId))
+						.FirstOrDefault(x => internalLink.Equals(x.HeadingId, StringComparison.OrdinalIgnoreCase));
 				}
 
 				parent = parent.Parent;
