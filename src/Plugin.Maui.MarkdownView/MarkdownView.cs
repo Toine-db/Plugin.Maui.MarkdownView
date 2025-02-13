@@ -63,7 +63,16 @@ public class MarkdownView : ContentView
 	public bool RenderSynchronously
 	{
 		get => (bool)GetValue(RenderSynchronouslyProperty);
-		private set => SetValue(RenderSynchronouslyProperty, value);
+		set => SetValue(RenderSynchronouslyProperty, value);
+	}
+
+	public static readonly BindableProperty MaskParseExceptionsProperty =
+		BindableProperty.Create(nameof(MaskParseExceptions), typeof(bool), typeof(MarkdownView), true);
+
+	public bool MaskParseExceptions
+	{
+		get => (bool)GetValue(MaskParseExceptionsProperty);
+		set => SetValue(MaskParseExceptionsProperty, value);
 	}
 
 	public static readonly BindableProperty IgnoreSafeAreaProperty =
@@ -179,8 +188,19 @@ public class MarkdownView : ContentView
 			? ViewSupplier
 			: new MauiBasicViewSupplier();
 
-		var markdownParser = new MarkdownParser<View>(uiComponentSupplier);
-		ParseMarkdownAndAddToContainer(markdownParser, markdownText, null);
+		try
+		{
+			var markdownParser = new MarkdownParser<View>(uiComponentSupplier);
+			ParseMarkdownAndAddToContainer(markdownParser, markdownText, null);
+		}
+		catch (Exception exception)
+		{
+			_logger?.Log(LogLevel.Error, "RenderViewsFromMarkdown exception: {exception}", exception);
+			if (!MaskParseExceptions)
+			{
+				throw;
+			}
+		}
 
 		IsLoadingMarkdown = false;
 	}
@@ -239,6 +259,14 @@ public class MarkdownView : ContentView
 		catch (OperationCanceledException)
 		{
 			_logger?.Log(LogLevel.Trace, "RenderViewsFromMarkdownAsync canceled");
+		}
+		catch (Exception exception)
+		{
+			_logger?.Log(LogLevel.Error, "RenderViewsFromMarkdownAsync exception: {exception}", exception);
+			if (!MaskParseExceptions)
+			{
+				throw;
+			}
 		}
 		finally
 		{
