@@ -9,17 +9,19 @@ namespace Plugin.Maui.MarkdownView;
 public class MarkdownView : ContentView
 {
 	private readonly ILogger<MarkdownView>? _logger;
-	private readonly VerticalStackLayout _layout;
-	private static readonly Semaphore LoadingSemaphore = new(1, 1);
+	private static readonly SemaphoreSlim LoadingSemaphore = new(1, 1);
+	private bool isWaitingToDisplayViewsFromMarkdown = false;
 	private CancellationTokenSource? _loadingCts;
+
+	private readonly VerticalStackLayout _container;
 
 	public MarkdownView()
 	{
-		_layout = new VerticalStackLayout
+		_container = new VerticalStackLayout
 		{
 			IgnoreSafeArea = this.IgnoreSafeArea,
 		};
-		Content = _layout;
+		Content = _container;
 
 		SyncIgnoreSafeAreaSettingToSupplier();
 
@@ -83,7 +85,7 @@ public class MarkdownView : ContentView
 
 	public IView[] GetRootChildren()
 	{
-		var rootChildren = _layout.Children.ToArray();
+		var rootChildren = _container.Children.ToArray();
 		return rootChildren;
 	}
 
@@ -91,7 +93,7 @@ public class MarkdownView : ContentView
 	{
 		if (bindable is MarkdownView markdownView)
 		{
-			markdownView._layout.Style = (Style)newvalue;
+			markdownView._container.Style = (Style)newvalue;
 		}
 	}
 
@@ -120,7 +122,7 @@ public class MarkdownView : ContentView
 	{
 		if (bindable is MarkdownView markdownView)
 		{
-			markdownView._layout.IgnoreSafeArea = (bool)newvalue;
+			markdownView._container.IgnoreSafeArea = (bool)newvalue;
 			markdownView.SyncIgnoreSafeAreaSettingToSupplier();
 		}
 	}
@@ -136,23 +138,29 @@ public class MarkdownView : ContentView
 	/// <summary>
 	/// Invalidate current displayed views generated from Markdown,
 	/// starting new view creation cycle by forcing one cycle at a time, restarting each time markdown is invalidated
+	/// with maximum 1 waiting request in line
 	/// </summary>
 	private async void InvalidateMarkdownAsync()
 	{
-		if (_loadingCts != null)
+		if (isWaitingToDisplayViewsFromMarkdown)
 		{
-			_loadingCts?.Cancel();
 			return;
 		}
+		isWaitingToDisplayViewsFromMarkdown = true;
 
-		LoadingSemaphore.WaitOne();
+		CancelDisplayViewsFromMarkdown();
 
-		_loadingCts = new CancellationTokenSource();
+		await LoadingSemaphore.WaitAsync();
+		isWaitingToDisplayViewsFromMarkdown = false;
+
+		var loadingCts = new CancellationTokenSource();
+		_loadingCts = loadingCts;
+
 		var isCanceled = false;
 
 		try
 		{
-			await DisplayViewsFromMarkdownAsync(MarkdownText, _loadingCts.Token).ConfigureAwait(false);
+			await DisplayViewsFromMarkdownAsync(MarkdownText, loadingCts.Token).ConfigureAwait(false);
 		}
 		catch (OperationCanceledException)
 		{
@@ -176,7 +184,7 @@ public class MarkdownView : ContentView
 	{
 		if (string.IsNullOrWhiteSpace(MarkdownText))
 		{
-			await Dispatcher.DispatchAsync(_layout.Clear);
+			await Dispatcher.DispatchAsync(_container.Clear);
 			IsLoadingMarkdown = false;
 
 			return;
@@ -195,11 +203,11 @@ public class MarkdownView : ContentView
 			var views = markdownParser.Parse(markdownText);
 			loadingToken.ThrowIfCancellationRequested();
 
-			_layout.Clear();
+			_container.Clear();
 			foreach (var view in views)
 			{
 				loadingToken.ThrowIfCancellationRequested();
-				_layout.Add(view);
+				_container.Add(view);
 			}
 
 			_logger?.Log(LogLevel.Trace, "Markdown used > {markdownText}", markdownText);
@@ -209,4 +217,15 @@ public class MarkdownView : ContentView
 		IsLoadingMarkdown = false;
 	}
 
+	private void CancelDisplayViewsFromMarkdown()
+	{
+		if (_loadingCts == null)
+		{
+			return;
+		}
+
+		_loadingCts?.Cancel();
+		_loadingCts?.Dispose();
+		_loadingCts = null;
+	}
 }
