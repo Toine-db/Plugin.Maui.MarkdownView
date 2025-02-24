@@ -97,6 +97,22 @@ This property is can be set in XAML using the `Content` field. When using XAML u
 
 Gets a value indicating whether control is parsing markdown text to views.
 
+##### `RenderSynchronously`
+When 'True' the UI is rendered synchronously when MarkdownText is changed. When 'False' the markdown is read async and the UI Rendering is forced on the UI-Thread.
+
+(default value: false)
+
+##### `MaskParseExceptions`
+Mask all exceptions comming from Markdown parsing and UI Rendering. Preferably use the MarkdownParseExceptionThrown event to catch exceptions, this is more save when UI is rendered async.
+
+(default  value: true)
+
+##### `MarkdownParseExceptionThrown`
+Event that is triggert when exception is thrown during Markdown parsing or the UI Rendering.
+
+##### `IgnoreSafeArea`
+(default  value: false)
+
 ##### `ViewSupplier`
 
 Sets a value for IMauiViewSupplier that creates the views. Here you have three options:
