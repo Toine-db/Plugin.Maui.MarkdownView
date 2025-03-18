@@ -59,7 +59,16 @@ public class MarkdownView : ContentView
 		private set => SetValue(IsLoadingMarkdownProperty, value);
 	}
 
-	public static readonly BindableProperty RenderSynchronouslyProperty =
+    public static readonly BindableProperty HasRenderedViewsProperty =
+        BindableProperty.Create(nameof(HasRenderedViews), typeof(bool), typeof(MarkdownView), false, BindingMode.OneWayToSource);
+
+    public bool HasRenderedViews
+    {
+        get => (bool)GetValue(HasRenderedViewsProperty);
+        private set => SetValue(HasRenderedViewsProperty, value);
+    }
+
+    public static readonly BindableProperty RenderSynchronouslyProperty =
 		BindableProperty.Create(nameof(RenderSynchronously), typeof(bool), typeof(MarkdownView), false);
 
 	public bool RenderSynchronously
@@ -180,8 +189,9 @@ public class MarkdownView : ContentView
 		{
 			_container.Clear();
 			IsLoadingMarkdown = false;
+            HasRenderedViews = false;
 
-			return;
+            return;
 		}
 
 		IsLoadingMarkdown = true;
@@ -207,7 +217,8 @@ public class MarkdownView : ContentView
 		}
 
 		IsLoadingMarkdown = false;
-	}
+        HasRenderedViews = true;
+    }
 
 	protected void ParseMarkdownAndAddToContainer(
 		MarkdownParser<View> markdownParser, 
@@ -289,8 +300,9 @@ public class MarkdownView : ContentView
 		{
 			await Dispatcher.DispatchAsync(_container.Clear);
 			IsLoadingMarkdown = false;
+            HasRenderedViews = false;
 
-			return;
+            return;
 		}
 
 		IsLoadingMarkdown = true;
@@ -310,5 +322,6 @@ public class MarkdownView : ContentView
 		}, loadingToken);
 
 		IsLoadingMarkdown = false;
-	}
+        HasRenderedViews = true;
+    }
 }
