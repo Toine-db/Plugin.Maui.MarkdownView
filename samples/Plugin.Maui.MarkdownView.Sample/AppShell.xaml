@@ -57,5 +57,16 @@
             <ShellContent ContentTemplate="{DataTemplate pages:MarkdownFullExamplePage}" />
         </Tab>
     </FlyoutItem>
+    <FlyoutItem Title="Without styling">
+        <FlyoutItem.FlyoutIcon>
+            <FontImageSource
+                FontFamily="FontAwesomeRegular"
+                Glyph="&#xf02e;" />
+        </FlyoutItem.FlyoutIcon>
+        <Tab>
+            <ShellContent ContentTemplate="{DataTemplate pages:MarkdownWithoutStylePage}" />
+        </Tab>
+    </FlyoutItem>
+
 
 </Shell>

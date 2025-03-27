@@ -198,7 +198,7 @@ public class MarkdownView : ContentView
 
 		var uiComponentSupplier = ViewSupplier != null
 			? ViewSupplier
-			: new MauiBasicViewSupplier();
+			: CreateDefaultViewSupplier();
 
 		try
 		{
@@ -311,7 +311,7 @@ public class MarkdownView : ContentView
 		{
 			var uiComponentSupplier = ViewSupplier != null
 				? ViewSupplier
-				: new MauiBasicViewSupplier();
+				: CreateDefaultViewSupplier();
 
 			var markdownParser = new MarkdownParser<View>(uiComponentSupplier);
 
@@ -323,5 +323,11 @@ public class MarkdownView : ContentView
 
 		IsLoadingMarkdown = false;
         HasRenderedViews = true;
+    }
+
+    private IMauiViewSupplier CreateDefaultViewSupplier()
+    {
+        var viewSupplier = new MauiFormattedTextViewSupplier();
+        return viewSupplier;
     }
 }
