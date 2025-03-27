@@ -4,14 +4,30 @@ using MarkdownParser.Models.Segments;
 using Plugin.Maui.MarkdownView.Common;
 using Plugin.Maui.MarkdownView.Controls;
 using Microsoft.Extensions.Logging;
+using Plugin.Maui.MarkdownView.Resources.Styles;
 
 namespace Plugin.Maui.MarkdownView.ViewSuppliers;
 
 public class MauiFormattedTextViewSupplier : MauiBasicViewSupplier
 {
-	public MauiFormattedTextViewSupplierStyles? FormattedTextStyles { get; set; }
+    private MauiFormattedTextViewSupplierStyles? _formattedTextStyles;
+    public MauiFormattedTextViewSupplierStyles FormattedTextStyles
+    {
+        get
+        {
+            if (_formattedTextStyles == null)
+            {
+                _formattedTextStyles = new DefaultMauiFormattedTextViewSupplierStyles();
+                var logger = ServiceHelper.GetLogger<MauiFormattedTextViewSupplier>();
+                logger?.Log(LogLevel.Warning, "Don't be a copycat and create your own styles! \r\n" +
+                                              "How to set styles in XAML:\r\n        <MarkdownView>\r\n            <MarkdownView.ViewSupplier>\r\n                <MauiFormattedTextViewSupplier>\r\n                    <MauiFormattedTextViewSupplier.FormattedTextStyles>\r\n                        <styles:DefaultMauiFormattedTextViewSupplierStyles />\r\n                    </MauiFormattedTextViewSupplier.FormattedTextStyles>\r\n                    <MauiBasicViewSupplier.Styles>\r\n                        <styles:DefaultMauiBasicViewSupplierStyles />\r\n                    </MauiBasicViewSupplier.Styles>\r\n                </MauiFormattedTextViewSupplier>\r\n            </MarkdownView.ViewSupplier>\r\n        </MarkdownView>");
+            }
+			return _formattedTextStyles;
+        }
+        set => _formattedTextStyles = value;
+    }
 
-	public Func<HyperlinkSpan, Task>? OnHyperlinkTappedFallback { get; set; }
+    public Func<HyperlinkSpan, Task>? OnHyperlinkTappedFallback { get; set; }
 
 	public override View? CreateTextView(TextBlock textBlock)
 	{

@@ -1,14 +1,31 @@
 ﻿using MarkdownParser.Models;
+using Microsoft.Extensions.Logging;
 using Plugin.Maui.MarkdownView.Common;
 using Plugin.Maui.MarkdownView.Controls;
+using Plugin.Maui.MarkdownView.Resources.Styles;
 
 namespace Plugin.Maui.MarkdownView.ViewSuppliers;
 
 public class MauiBasicViewSupplier : IMauiViewSupplier
 {
-	public MauiBasicViewSupplierStyles? Styles { get; set; }
+    private MauiBasicViewSupplierStyles? _styles;
+    public MauiBasicViewSupplierStyles Styles
+    {
+        get
+        {
+            if (_styles == null)
+            {
+                _styles = new DefaultMauiBasicViewSupplierStyles();
+                var logger = ServiceHelper.GetLogger<MauiBasicViewSupplier>();
+                logger?.Log(LogLevel.Warning, "Don't be a copycat and create your own styles! \r\n" +
+                                              "How to set styles in XAML:\r\n        <MarkdownView>\r\n            <MarkdownView.ViewSupplier>\r\n                <MauiFormattedTextViewSupplier>\r\n                    <MauiFormattedTextViewSupplier.FormattedTextStyles>\r\n                        <styles:DefaultMauiFormattedTextViewSupplierStyles />\r\n                    </MauiFormattedTextViewSupplier.FormattedTextStyles>\r\n                    <MauiBasicViewSupplier.Styles>\r\n                        <styles:DefaultMauiBasicViewSupplierStyles />\r\n                    </MauiBasicViewSupplier.Styles>\r\n                </MauiFormattedTextViewSupplier>\r\n            </MarkdownView.ViewSupplier>\r\n        </MarkdownView>");
+            }
+            return _styles;
+        }
+        set => _styles = value;
+    }
 
-	public string? BasePathForRelativeUrlConversion { get; set; }
+    public string? BasePathForRelativeUrlConversion { get; set; }
 	public string[]? PrefixesToIgnoreForRelativeUrlConversion { get; set; }
 
 	public IEnumerable<MarkdownReferenceDefinition>? PublishedMarkdownReferenceDefinitions { get; private set; }

@@ -69,4 +69,10 @@
 	  <ProjectReference Include="..\..\src\Plugin.Maui.MarkdownView\Plugin.Maui.MarkdownView.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <MauiXaml Update="Pages\MarkdownWithoutStylePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
 </Project>
