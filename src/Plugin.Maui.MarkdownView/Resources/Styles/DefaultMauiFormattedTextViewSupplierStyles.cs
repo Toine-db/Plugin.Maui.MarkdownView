@@ -2,7 +2,7 @@
 
 namespace Plugin.Maui.MarkdownView.Resources.Styles;
 
-public class DefaultMauiFormattedTextViewSupplierStyles : MauiFormattedTextViewSupplierStyles
+internal class DefaultMauiFormattedTextViewSupplierStyles : MauiFormattedTextViewSupplierStyles
 {
 	public DefaultMauiFormattedTextViewSupplierStyles()
     {

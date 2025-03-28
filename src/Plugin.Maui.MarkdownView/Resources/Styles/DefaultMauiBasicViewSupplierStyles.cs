@@ -2,7 +2,7 @@
 
 namespace Plugin.Maui.MarkdownView.Resources.Styles;
 
-public class DefaultMauiBasicViewSupplierStyles : MauiBasicViewSupplierStyles
+internal class DefaultMauiBasicViewSupplierStyles : MauiBasicViewSupplierStyles
 {
 	internal const string UniqueDefaultMarkdownLayoutViewStyleKey = "DefaultMarkdownLayoutViewStyleAxQwewrR";
 
